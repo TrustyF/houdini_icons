@@ -1,6 +1,5 @@
 <script setup>
 import {inject, onMounted, watch, ref, computed} from "vue";
-import {tag} from "postcss-selector-parser";
 import Tag_list from "@/components/icon/tag_list.vue";
 
 let props = defineProps({
@@ -8,18 +7,13 @@ let props = defineProps({
     type: Object,
     default: null,
   },
-  search_term: {
-    type: String,
-    default: "",
-  },
 });
 
 let emits = defineEmits(["test"]);
 const curr_api = inject("curr_api");
+const search = inject("search");
 
-// const tags = computed(() => [...props['data']['tags']].concat(props['data']['shapes'], props['data']['symbols'], props['data']['colors']))
-const search = computed(() => props['search_term'])
-const s_regex = computed(() => new RegExp(search.value, 'i'))
+const s_regex = computed(() => new RegExp(search, 'i'))
 
 const matched_tags = computed(() =>  props['data']['tags'].filter(item => s_regex.value.test(item['name'])))
 const matched_shapes = computed(() =>  props['data']['shapes'].filter(item => s_regex.value.test(item['name'])))
@@ -35,10 +29,10 @@ const matched_colors = computed(() =>  props['data']['colors'].filter(item => s_
     <div class="icon_name">{{ data['name'] }}</div>
 
     <div class="tags">
-      <tag_list v-show="search_term" :content="matched_tags" title="Tags"></tag_list>
-      <tag_list v-show="search_term" :content="matched_shapes" title="Shapes"></tag_list>
-      <tag_list v-show="search_term" :content="matched_symbols" title="Symbols"></tag_list>
-      <tag_list v-show="search_term" :content="matched_colors" title="Colors"></tag_list>
+      <tag_list :content="matched_tags" title="Tags"></tag_list>
+      <tag_list :content="matched_shapes" title="Shapes"></tag_list>
+      <tag_list :content="matched_symbols" title="Symbols"></tag_list>
+      <tag_list :content="matched_colors" title="Colors"></tag_list>
     </div>
   </div>
 </template>
@@ -80,8 +74,8 @@ const matched_colors = computed(() =>  props['data']['colors'].filter(item => s_
 }
 .tags {
   /*width: 100%;*/
-  /*max-height: 100px;*/
-  /*overflow-y: scroll;*/
+  max-height: 100px;
+  overflow-y: scroll;
 }
 
 </style>

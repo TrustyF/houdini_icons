@@ -84,7 +84,7 @@ def make_ai_request(img):
 
 
 def dispatch_icons():
-    for path in svg_files[:50]:
+    for path in svg_files[:200]:
         make_icon(path)
     # with ThreadPoolExecutor() as executor:
     #     futures = [executor.submit(make_icon,path) for path in svg_files[:5]]
