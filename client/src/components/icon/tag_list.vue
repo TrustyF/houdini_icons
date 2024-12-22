@@ -22,7 +22,7 @@ const curr_api = inject("curr_api");
     <h1 class="tag_heading">{{ title }}</h1>
 
     <div class="tag_list">
-      <div class="tag" v-for="tag in content" :key="tag['name']+title">{{ tag['name'] }}</div>
+      <div class="tag" v-for="tag in content" :key="tag['name']+title">{{ `${tag['name']} ${tag['weight']}` }}</div>
     </div>
 
   </div>

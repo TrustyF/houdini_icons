@@ -2,19 +2,23 @@
 import data from '/src/assets/database.json'
 import Icon_container from "@/components/icon/icon_container.vue";
 import {computed, ref} from "vue";
+import Fuse from 'fuse.js'
 
 const search = ref("")
-const s_regex = computed(() => new RegExp(search.value, 'i'))
+
+const escapedTerms = computed(() => search.value.split(/\s+/).map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+const s_regex = computed(() => new RegExp(escapedTerms.value.join('|'), 'i'))
+// const s_regex = computed(() => new RegExp(search.value, 'i'))
 
 const filtered_list = computed(() => {
   // console.log(data)
   return data.filter(item => {
     return (
       s_regex.value.test(item['name']) ||
-      item['tags'].some(tag => s_regex.value.test(tag['name'])) ||
-      item['shapes'].some(shape => s_regex.value.test(shape['name'])) ||
-      item['symbols'].some(symbol => s_regex.value.test(symbol['name'])) ||
-      item['colors'].some(color => s_regex.value.test(color['name']))
+      item['tags'].some(tag => escapedTerms.value.includes(tag['name'])) ||
+      item['shapes'].some(shape => escapedTerms.value.includes(shape['name'])) ||
+      item['symbols'].some(symbol => escapedTerms.value.includes(symbol['name'])) ||
+      item['colors'].some(color => escapedTerms.value.includes(color['name']))
     );
   })
 })
@@ -26,6 +30,7 @@ const filtered_list = computed(() => {
   <main>
     <div class="search_bar">
       <input type="search" v-model="search">
+      <div>{{escapedTerms}}</div>
     </div>
 
     <div class="icons_list">
