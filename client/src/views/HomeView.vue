@@ -4,14 +4,17 @@ import Icon_container from "@/components/icon/icon_container.vue";
 import {computed, ref} from "vue";
 
 const search = ref("")
-const s_regex = computed(()=> new RegExp(search.value,'i'))
+const s_regex = computed(() => new RegExp(search.value, 'i'))
 
-const filtered_list = computed(()=>{
-  return data.filter(item=>{
+const filtered_list = computed(() => {
+  // console.log(data)
+  return data.filter(item => {
     return (
-      item['tags'].some(tag => s_regex.value.test(tag)) ||
-      item['shapes'].some(shape => s_regex.value.test(shape)) ||
-      item['colors'].some(color => s_regex.value.test(color))
+      s_regex.value.test(item['name']) ||
+      item['tags'].some(tag => s_regex.value.test(tag['name'])) ||
+      item['shapes'].some(shape => s_regex.value.test(shape['name'])) ||
+      item['symbols'].some(symbol => s_regex.value.test(symbol['name'])) ||
+      item['colors'].some(color => s_regex.value.test(color['name']))
     );
   })
 })
@@ -39,5 +42,11 @@ const filtered_list = computed(()=>{
 .icons_list {
   outline: 1px solid red;
   display: flex;
+  flex-flow: row wrap;
+
+  /*justify-items: flex-start;*/
+  /*align-items: flex-start;*/
+
+  gap: 10px;
 }
 </style>
