@@ -1,8 +1,6 @@
 from sqlalchemy import Integer, String, Column, ForeignKey, Table, Float
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
-Base = declarative_base()
+from db_loader import session,Base
 
 
 class Icon(Base):
@@ -10,7 +8,7 @@ class Icon(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
-    image = Column(String(255), nullable=False,unique=True)
+    image = Column(String(255), nullable=False, unique=True)
     category = Column(String(255))
 
     tags = relationship("IconTagAssoc", back_populates='icon')
@@ -24,9 +22,9 @@ class Icon(Base):
     def to_dict(self):
         return {
             "id": self.id,
-            "name": self.name,
+            "name": {"name": self.name, "match": 0, "weight": 1},
             "image": self.image,
-            "category": self.category,
+            "category": {"name": self.category, "match": 0, "weight": 1},
             "tags": sorted([x.to_dict() for x in self.tags], reverse=True, key=lambda x: x['weight']),
             "shapes": sorted([x.to_dict() for x in self.shapes], reverse=True, key=lambda x: x['weight']),
             "symbols": sorted([x.to_dict() for x in self.symbols], reverse=True, key=lambda x: x['weight']),
@@ -40,13 +38,14 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconTagAssoc", back_populates='tag')
+    icons = relationship("IconTagAssoc", back_populates='tag',cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Tag(name={self.name})>"
 
     def to_dict(self):
-        return self.name
+        return self.name,
+
 
 
 class Shape(Base):
@@ -55,13 +54,14 @@ class Shape(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconShapeAssoc", back_populates='shape')
+    icons = relationship("IconShapeAssoc", back_populates='shape',cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Shape(name={self.name})>"
 
     def to_dict(self):
-        return self.name
+        return self.name,
+
 
 class Symbol(Base):
     __tablename__ = "symbol"
@@ -69,13 +69,14 @@ class Symbol(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconSymbolAssoc", back_populates='symbol')
+    icons = relationship("IconSymbolAssoc", back_populates='symbol',cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Symbol(name={self.name})>"
 
     def to_dict(self):
-        return self.name
+        return self.name,
+
 
 class Color(Base):
     __tablename__ = "color"
@@ -83,19 +84,19 @@ class Color(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconColorAssoc", back_populates='color')
+    icons = relationship("IconColorAssoc", back_populates='color',cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Color(name={self.name})>"
 
     def to_dict(self):
-        return self.name
+        return self.name,
 
 
 class IconTagAssoc(Base):
     __tablename__ = "icon_tag_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id'), primary_key=True)
-    tag_id = Column(Integer, ForeignKey('tag.id'), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
+    tag_id = Column(Integer, ForeignKey('tag.id',ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="tags")
@@ -103,15 +104,18 @@ class IconTagAssoc(Base):
 
     def to_dict(self):
         return {
-            'name': self.tag.to_dict(),
-            'weight': self.weight
+            'id': self.tag.id,
+            'name': self.tag.name,
+            'weight': self.weight,
+            'count': session.query(IconTagAssoc).filter_by(tag_id=self.tag_id).count(),
+            'match': 0
         }
 
 
 class IconShapeAssoc(Base):
     __tablename__ = "icon_shape_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id'), primary_key=True)
-    shape_id = Column(Integer, ForeignKey('shape.id'), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
+    shape_id = Column(Integer, ForeignKey('shape.id',ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="shapes")
@@ -119,13 +123,18 @@ class IconShapeAssoc(Base):
 
     def to_dict(self):
         return {
-            'name': self.shape.to_dict(),
-            'weight': self.weight
+            'id': self.shape.id,
+            'name': self.shape.name,
+            'weight': self.weight,
+            'count': session.query(IconShapeAssoc).filter_by(shape_id=self.shape_id).count(),
+            'match': 0
         }
+
+
 class IconSymbolAssoc(Base):
     __tablename__ = "icon_symbol_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id'), primary_key=True)
-    symbol_id = Column(Integer, ForeignKey('symbol.id'), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
+    symbol_id = Column(Integer, ForeignKey('symbol.id',ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="symbols")
@@ -133,14 +142,18 @@ class IconSymbolAssoc(Base):
 
     def to_dict(self):
         return {
-            'name': self.symbol.to_dict(),
-            'weight': self.weight
+            'id': self.symbol.id,
+            'name': self.symbol.name,
+            'weight': self.weight,
+            'count': session.query(IconSymbolAssoc).filter_by(symbol_id=self.symbol_id).count(),
+            'match': 0
         }
+
 
 class IconColorAssoc(Base):
     __tablename__ = "icon_color_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id'), primary_key=True)
-    color_id = Column(Integer, ForeignKey('color.id'), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
+    color_id = Column(Integer, ForeignKey('color.id',ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="colors")
@@ -148,6 +161,9 @@ class IconColorAssoc(Base):
 
     def to_dict(self):
         return {
-            'name': self.color.to_dict(),
-            'weight': self.weight
+            'id': self.color.id,
+            'name': self.color.name,
+            'weight': self.weight,
+            'count': session.query(IconColorAssoc).filter_by(color_id=self.color_id).count(),
+            'match': 0
         }

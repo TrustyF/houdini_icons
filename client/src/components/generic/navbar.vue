@@ -9,7 +9,6 @@ let props = defineProps({
   },
 });
 let emits = defineEmits(["test"]);
-const curr_api = inject("curr_api");
 
 </script>
 

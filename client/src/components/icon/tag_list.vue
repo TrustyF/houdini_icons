@@ -10,50 +10,78 @@ let props = defineProps({
     type: String,
     default: null,
   },
+  icon_name: {
+    type: String,
+    default: null,
+  },
 });
 let emits = defineEmits(["test"]);
-const curr_api = inject("curr_api");
+const search = inject("search");
+const expanded = inject("expanded");
+
+const filtered = ref([])
+
+function compute() {
+  return props['content'].filter((elem) => elem['match'] === 1)
+}
+
+function expand() {
+  return props['content']
+}
+
+watch(search, (oldV, newV) => {
+  filtered.value = compute()
+})
+watch(expanded, (oldV, newV) => {
+  if (oldV) {
+    filtered.value = expand()
+  } else {
+    filtered.value = compute()
+  }
+})
+
+onMounted(() => {
+  filtered.value = compute()
+})
 
 </script>
 
 <template>
-<!--  <div>{{content.length}}</div>-->
-  <div class="tag_wrapper" v-if="content.length > 0">
-    <h1 class="tag_heading">{{ title }}</h1>
-
-    <div class="tag_list">
-      <div class="tag" v-for="tag in content" :key="tag['name']+title">{{ `${tag['name']} ${tag['weight']}` }}</div>
+  <div class="tag_list" v-if="filtered.length > 0">
+    <p style="font-size: 0.7em">{{title}}</p>
+    <div v-for="tag in filtered" :key="tag['id']+icon_name">
+      <div class="tag" @click="search='#strict '+tag['name']">
+        <h1>{{ `${tag['name']}` }}</h1>
+        <h1 class="tag_count">{{ `${tag['count']}` }}</h1>
+      </div>
     </div>
-
   </div>
 </template>
 
 <style scoped>
-.tag_wrapper {
-  display: flex;
-  flex-flow: column;
-  gap: 5px;
-}
-
-.tag_heading {
-  font-size: 0.7em;
-  text-decoration: underline 1px solid;
-}
 
 .tag_list {
   display: flex;
   flex-flow: row wrap;
   justify-items: flex-start;
   gap: 2px;
+  margin: 0;
 }
 
 .tag {
-  user-select: none;
+  position: relative;
+  display: flex;
+  gap: 5px;
   font-size: 0.7em;
   background-color: #181818;
-  padding: 4px 7px 4px 7px;
-  border-radius: 3px;
+  padding: 2px 5px 2px 5px;
+  border-radius: 5px;
 }
-
+.tag:hover{
+  background-color: #282828;
+}
+h1 {
+  font-size: inherit;
+}
 
 </style>

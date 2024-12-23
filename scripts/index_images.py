@@ -2,11 +2,8 @@ import os
 import glob
 from dotenv import load_dotenv
 from openai import OpenAI
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from concurrent.futures import ThreadPoolExecutor
-
-from icon_model import Base, Tag, Color, Shape, Icon, IconTagAssoc, IconShapeAssoc, IconColorAssoc, Symbol, \
+from db_loader import session
+from icon_model import Tag, Color, Shape, Icon, IconTagAssoc, IconShapeAssoc, IconColorAssoc, Symbol, \
     IconSymbolAssoc
 from PIL import Image
 import base64
@@ -19,20 +16,6 @@ import pyvips
 load_dotenv()
 main_dir = os.path.dirname(os.path.abspath(__file__))
 svg_files = glob.glob(os.path.join(main_dir, '**', '*.svg'), recursive=True)
-
-db_username = os.getenv('MYSQL_DATABASE_USERNAME')
-db_password = os.getenv('MYSQL_DATABASE_PASSWORD')
-db_name = 'TrustyFox$houdini_icons'
-
-local_database_uri = f'mysql+pymysql://root:{db_password}@127.0.0.1:3306/{db_name}'
-local_sqlite_uri = "sqlite:///assets/icon_db.db"
-
-engine = create_engine(local_sqlite_uri)
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
 
 client = OpenAI(api_key=os.getenv("open_ai_key"))
 
@@ -84,8 +67,10 @@ def make_ai_request(img):
 
 
 def dispatch_icons():
-    for path in svg_files[:200]:
+
+    for path in svg_files[:1000]:
         make_icon(path)
+
     # with ThreadPoolExecutor() as executor:
     #     futures = [executor.submit(make_icon,path) for path in svg_files[:5]]
     #     results = [future.result() for future in futures]
@@ -103,22 +88,26 @@ def make_icon(icon_path):
     # -----------------------------------------------------------
     print(ico_name)
 
-    #  make image
-    try:
-        base64_image = encode_image(icon_path, ico_name, ico_category)
-    except Exception:
-        print(ico_name, " failed")
-        return
+    # #  make image
+    # try:
+    #     base64_image = encode_image(icon_path, ico_name, ico_category)
+    # except Exception:
+    #     print(ico_name, " failed")
+    #     return
+    #
+    # #  get attrib
+    # gen_attributes = make_ai_request(base64_image)
+    #
+    # # save to json
+    # with open(f'temp/{ico_name}.json', 'w') as outfile:
+    #     json.dump(json.loads(gen_attributes), outfile, indent=1)
 
-    #  get attrib
-    gen_attributes = make_ai_request(base64_image)
-
-    # save to json
-    with open(f'temp/{ico_name}.json', 'w') as outfile:
-        json.dump(json.loads(gen_attributes), outfile, indent=1)
     #  read json
-    with open(f'temp/{ico_name}.json', 'r') as infile:
-        gen_attributes = json.load(infile)
+    try:
+        with open(f'temp/{ico_name}.json', 'r') as infile:
+            gen_attributes = json.load(infile)
+    except:
+        return
 
     # create icon
     icon = Icon(name=ico_name, category=ico_category, image=ico_img)
@@ -190,6 +179,6 @@ def remake_images():
 
 
 if __name__ == '__main__':
-    dispatch_icons()
+    # dispatch_icons()
     dump_json()
     # remake_images()
