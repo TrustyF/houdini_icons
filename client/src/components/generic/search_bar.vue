@@ -7,7 +7,6 @@ let props = defineProps({
     default: null,
   },
 });
-let emits = defineEmits(["test"]);
 const search = inject("search");
 
 </script>
@@ -25,6 +24,7 @@ const search = inject("search");
   border: 1px solid #4d4d4d;
   background-color: #282828;
   color: white;
+  border-radius: 5px;
 
   box-shadow: 3px 3px 5px black;
 }

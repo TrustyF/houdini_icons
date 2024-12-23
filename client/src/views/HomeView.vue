@@ -1,13 +1,17 @@
 <script setup>
 import data from '/src/assets/database.json'
 import Icon_container from "@/components/icon/icon_container.vue";
-import {computed, provide, ref} from "vue";
+import {computed, onMounted, provide, ref, watch} from "vue";
 import Search_bar from "@/components/generic/search_bar.vue";
 
+let search_timeout;
 const search = ref("")
+const searching = ref(false)
+const filtered_data = ref([])
 provide("search", search)
+provide("searching", searching)
 
-console.log(data)
+// console.log(data)
 
 function matchFields(data, query) {
   // console.log('query', query)
@@ -74,10 +78,33 @@ function calc_weight(entry) {
   return total_weight
 }
 
-const updatedData = computed(() => data.map((entry) => matchFields(entry, search.value)))
-const filteredData = computed(() => updatedData.value.filter((entry) => {
-  return search.value.length > 0 ? hasMatch(entry) : true
-}).sort((a, b) => calc_weight(b) - calc_weight(a)))
+function make_search(){
+
+  const updatedData = data.map((entry) => matchFields(entry, search.value))
+
+  filtered_data.value = updatedData.filter((entry) => {
+    return search.value.length > 0 ? hasMatch(entry) : true
+  }).sort((a, b) => calc_weight(b) - calc_weight(a))
+
+  searching.value = search.value.length > 0
+}
+
+onMounted(()=>{
+  make_search()
+})
+
+watch(search, (oldV, newV) => {
+  // make_search()
+  requestIdleCallback(()=>{
+    make_search()
+  })
+
+  // clearTimeout(search_timeout);
+  // search_timeout = setTimeout(() => {
+  //   make_search()
+  // }, 150); // Delay the operation
+
+})
 
 </script>
 
@@ -89,7 +116,7 @@ const filteredData = computed(() => updatedData.value.filter((entry) => {
     </div>
 
     <div class="icons_list">
-      <icon_container v-for="icon in filteredData"
+      <icon_container v-for="icon in filtered_data.slice(0,50)"
                       :key="icon['id']"
                       :data="icon"/>
     </div>

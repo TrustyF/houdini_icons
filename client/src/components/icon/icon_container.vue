@@ -11,6 +11,7 @@ let props = defineProps({
 
 let emits = defineEmits(["test"]);
 const search = inject("search");
+const searching = inject("searching");
 
 const expanded = ref(false)
 provide("expanded",expanded)
@@ -18,18 +19,20 @@ provide("expanded",expanded)
 </script>
 
 <template>
-  <div class="icon_container_wrapper" @click="expanded = !expanded">
+  <div class="icon_container_wrapper">
     <img class="icon_img" :src="`/src/assets/converted_icons/${data['image']}`" alt="">
 
     <div class="icon_name" :title="data['name']['name']">{{ data['name']['name'] }}</div>
     <div class="icon_category">{{ data['category']['name'] }}</div>
 
-    <div class="tags" v-show="search.length > 1 || expanded">
+    <div class="tags" v-show="searching || expanded">
       <tag_list :icon_name="data['name']['name']" :content="data['tags']" v-show="data['tags'] || expanded" title="Tags"></tag_list>
       <tag_list :icon_name="data['name']['name']" :content="data['shapes']" v-show="data['shapes'] || expanded" title="Shapes"></tag_list>
       <tag_list :icon_name="data['name']['name']" :content="data['symbols']" v-show="data['symbols'] || expanded" title="Symbols"></tag_list>
       <tag_list :icon_name="data['name']['name']" :content="data['colors']" v-show="data['colors'] || expanded" title="Colors"></tag_list>
     </div>
+
+    <div class="click_zone" @click="expanded = !expanded"></div>
   </div>
 </template>
 
@@ -93,6 +96,7 @@ provide("expanded",expanded)
 }
 .tags {
   width: 100%;
+  z-index: 5;
   /*outline: 1px solid blue;*/
   max-height: 100px;
   overflow-y: scroll;
@@ -106,6 +110,15 @@ provide("expanded",expanded)
 
   gap: 3px;
   margin-top: 10px;
+}
+.click_zone {
+  z-index: 3;
+  /*outline: 1px solid red;*/
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 </style>

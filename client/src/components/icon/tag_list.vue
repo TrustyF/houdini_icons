@@ -17,6 +17,8 @@ let props = defineProps({
 });
 let emits = defineEmits(["test"]);
 const search = inject("search");
+const searching = inject("searching");
+
 const expanded = inject("expanded");
 
 const filtered = ref([])
@@ -29,7 +31,7 @@ function expand() {
   return props['content']
 }
 
-watch(search, (oldV, newV) => {
+watch(searching, (oldV, newV) => {
   filtered.value = compute()
 })
 watch(expanded, (oldV, newV) => {
