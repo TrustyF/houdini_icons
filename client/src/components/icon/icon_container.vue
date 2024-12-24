@@ -1,78 +1,119 @@
 <script setup>
-import {inject, onMounted, watch, ref, computed, provide} from "vue";
+import {inject, onMounted, watch, ref, computed, provide, onUpdated} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
+import {clickOutSide as vClickOutSide} from '@mahdikhashan/vue3-click-outside'
 
 let props = defineProps({
-  data: {
-    type: Object,
-    default: null,
-  },
+  data: Object
 });
 
 let emits = defineEmits(["test"]);
 const search = inject("search");
 const searching = inject("searching");
+const settings = inject("settings");
+
+let icon_scale = computed(() => settings.icon_scale)
+let icon_size = computed(() => `${120 * icon_scale.value}px`)
+let image_size = computed(() => `${100 * icon_scale.value}px`)
 
 const expanded = ref(false)
-provide("expanded",expanded)
+provide("expanded", expanded)
+
+function close_expand() {
+  if (expanded.value) expanded.value = false
+}
 
 watch(searching, (oldV, newV) => {
   expanded.value = false
 })
 
+function flash_debug() {
+  const elem = document.getElementById('icon' + props['data']['id'])
+  elem.style.outline = '1px solid red'
+
+  setTimeout(()=>{
+    elem.style.outline = 'unset'
+  },5)
+}
+
+onUpdated(() => {
+  flash_debug()
+})
+
 </script>
 
 <template>
-  <div :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
-    <img class="icon_img" :src="`/src/assets/converted_icons/${data['image']}`" alt="">
+  <div :id="'icon'+data['id']" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
 
-    <div :class="`icon_name ${expanded ? 'full_name':''}`" :title="data['name']['name']">{{ data['name']['name'].replaceAll("_",' ') }}</div>
-    <div class="icon_category">{{ data['category']['name'] }}</div>
+    <img class="icon_img" v-once
+         :src="`/src/assets/converted_icons/${data['image']}`"
+         alt="icon">
 
-    <div :class="`tags ${expanded ? 'expanded':''}`" v-show="searching || expanded">
-      <tag_list :icon_name="data['name']['name']" :content="data['tags']" v-show="data['tags'] || expanded" title="Tags"></tag_list>
-      <tag_list :icon_name="data['name']['name']" :content="data['shapes']" v-show="data['shapes'] || expanded" title="Shapes"></tag_list>
-      <tag_list :icon_name="data['name']['name']" :content="data['symbols']" v-show="data['symbols'] || expanded" title="Symbols"></tag_list>
-      <tag_list :icon_name="data['name']['name']" :content="data['colors']" v-show="data['colors'] || expanded" title="Colors"></tag_list>
+    <div :class="`icon_name ${expanded ? 'full_name':''}`"
+         v-show="!settings.icon_only || expanded"
+         :title="data['name']['name']"> {{ data['name']['name'].replaceAll("_", ' ') }}
     </div>
 
-    <div class="click_zone" @click="expanded = !expanded"></div>
+    <div class="icon_category"
+         v-show="!settings.icon_only || expanded">{{ data['category']['name'] }}
+    </div>
+
+    <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
+
+      <tag_list :content="data['tags']"
+                v-show="data['tags'] || expanded"
+                title="Tags">
+      </tag_list>
+      <tag_list :content="data['shapes']"
+                v-show="data['shapes'] || expanded"
+                title="Shapes">
+      </tag_list>
+      <tag_list :content="data['symbols']"
+                v-show="data['symbols'] || expanded"
+                title="Symbols">
+      </tag_list>
+      <tag_list :content="data['colors']"
+                v-show="data['colors'] || expanded"
+                title="Colors">
+      </tag_list>
+
+    </div>
+
+    <div class="click_zone" @click="expanded = !expanded" v-click-out-side="close_expand"></div>
   </div>
 </template>
 
 <style scoped>
 .icon_container_wrapper {
-  width: 120px;
+  width: v-bind(icon_size);
 
   position: relative;
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: column wrap;
   justify-items: flex-start;
   align-items: flex-start;
 
-  background-color: #282828;
-  padding: 10px;
+  padding: calc(10px * v-bind(icon_scale));
   border-radius: 5px;
   user-select: none;
   cursor: pointer;
 }
+
 .icon_container_wrapper:hover {
-  background-color: var(--vt-c-black-soft);
+  background-color: #1f1f1f;
 }
+
 .expanded {
   /*flex-grow: 10;*/
   width: 300px;
-  background-color: #1c2833;
+  background-color: #1f1f1f;
 }
-.expanded:hover {
-  background-color: #1c2833;
 
-}
 .icon_img {
-  object-fit: cover;
-  width: 100px;
-  height: 100px;
-  padding: 5px;
+  object-fit: contain;
+  width: 100%;
+  max-width: v-bind(icon_size);
+  aspect-ratio: 1;
 }
 
 .icon_name {
@@ -90,6 +131,7 @@ watch(searching, (oldV, newV) => {
   overflow: hidden;
   width: 100%;
 }
+
 .full_name {
   word-break: break-word;
   white-space: wrap;
@@ -112,6 +154,7 @@ watch(searching, (oldV, newV) => {
   overflow: hidden;
   width: 100%;
 }
+
 .tags {
   width: 100%;
   z-index: 5;
@@ -129,6 +172,7 @@ watch(searching, (oldV, newV) => {
   gap: 3px;
   margin-top: 10px;
 }
+
 .click_zone {
   z-index: 3;
   /*outline: 1px solid red;*/
