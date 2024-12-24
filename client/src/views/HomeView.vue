@@ -82,9 +82,11 @@ function make_search(){
 
   const updatedData = data.map((entry) => matchFields(entry, search.value))
 
-  filtered_data.value = updatedData.filter((entry) => {
+  const filteredData = updatedData.filter((entry) => {
     return search.value.length > 0 ? hasMatch(entry) : true
   }).sort((a, b) => calc_weight(b) - calc_weight(a))
+
+  filtered_data.value = filteredData
 
   searching.value = search.value.length > 0
 }
@@ -116,9 +118,13 @@ watch(search, (oldV, newV) => {
     </div>
 
     <div class="icons_list">
-      <icon_container v-for="icon in filtered_data.slice(0,50)"
-                      :key="icon['id']"
-                      :data="icon"/>
+      <transition-group name="list">
+
+              <icon_container v-for="icon in filtered_data.slice(0,20)"
+                              :key="icon['id']"
+                              :data="icon"/>
+
+      </transition-group>
     </div>
 
   </div>
@@ -145,10 +151,25 @@ watch(search, (oldV, newV) => {
   /*outline: 1px solid red;*/
   display: flex;
   flex-flow: row wrap;
-
   justify-content: center;
-  /*align-items: flex-start;*/
-
+  align-items: flex-start;
   gap: 5px;
+}
+
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: transform 500ms ease, opacity 200ms linear;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.list-leave-active {
+  display: none;
+  /*position: absolute;*/
 }
 </style>

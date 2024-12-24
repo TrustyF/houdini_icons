@@ -50,9 +50,9 @@ onMounted(() => {
 
 <template>
   <div class="tag_list" v-if="filtered.length > 0">
-    <p style="font-size: 0.7em">{{title}}</p>
+    <p style="font-size: 0.7em;padding: 3px">{{title}}</p>
     <div v-for="tag in filtered" :key="tag['id']+icon_name">
-      <div class="tag" @click="search='#strict '+tag['name']">
+      <div class="tag" @click="search='#strict '+tag['name'];expanded = false">
         <h1>{{ `${tag['name']}` }}</h1>
         <h1 class="tag_count">{{ `${tag['count']}` }}</h1>
       </div>

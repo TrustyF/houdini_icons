@@ -13,7 +13,7 @@ const search = inject("search");
 
 <template>
   <input class="search_bar" type="search" placeholder="Search"
-         @keydown.esc="search=''" @click="$event.target.select()"
+         @keydown.esc="search=''"
          v-model="search">
   <h1 class="search_bar_clean bi-x-circle" @click="search=''"></h1>
 </template>

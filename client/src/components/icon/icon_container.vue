@@ -16,16 +16,20 @@ const searching = inject("searching");
 const expanded = ref(false)
 provide("expanded",expanded)
 
+watch(searching, (oldV, newV) => {
+  expanded.value = false
+})
+
 </script>
 
 <template>
-  <div class="icon_container_wrapper">
+  <div :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
     <img class="icon_img" :src="`/src/assets/converted_icons/${data['image']}`" alt="">
 
-    <div class="icon_name" :title="data['name']['name']">{{ data['name']['name'] }}</div>
+    <div :class="`icon_name ${expanded ? 'full_name':''}`" :title="data['name']['name']">{{ data['name']['name'].replaceAll("_",' ') }}</div>
     <div class="icon_category">{{ data['category']['name'] }}</div>
 
-    <div class="tags" v-show="searching || expanded">
+    <div :class="`tags ${expanded ? 'expanded':''}`" v-show="searching || expanded">
       <tag_list :icon_name="data['name']['name']" :content="data['tags']" v-show="data['tags'] || expanded" title="Tags"></tag_list>
       <tag_list :icon_name="data['name']['name']" :content="data['shapes']" v-show="data['shapes'] || expanded" title="Shapes"></tag_list>
       <tag_list :icon_name="data['name']['name']" :content="data['symbols']" v-show="data['symbols'] || expanded" title="Symbols"></tag_list>
@@ -39,8 +43,7 @@ provide("expanded",expanded)
 <style scoped>
 .icon_container_wrapper {
   width: 120px;
-  /*height: 250px;*/
-  /*outline: 1px solid red;*/
+
   position: relative;
   display: flex;
   flex-flow: column nowrap;
@@ -55,6 +58,15 @@ provide("expanded",expanded)
 }
 .icon_container_wrapper:hover {
   background-color: var(--vt-c-black-soft);
+}
+.expanded {
+  /*flex-grow: 10;*/
+  width: 300px;
+  background-color: #1c2833;
+}
+.expanded:hover {
+  background-color: #1c2833;
+
 }
 .icon_img {
   object-fit: cover;
@@ -78,6 +90,12 @@ provide("expanded",expanded)
   overflow: hidden;
   width: 100%;
 }
+.full_name {
+  word-break: break-word;
+  white-space: wrap;
+  text-overflow: unset;
+  overflow: unset;
+}
 
 .icon_category {
   /*outline: 1px solid orange;*/
@@ -98,8 +116,8 @@ provide("expanded",expanded)
   width: 100%;
   z-index: 5;
   /*outline: 1px solid blue;*/
-  max-height: 100px;
-  overflow-y: scroll;
+  /*max-height: 100px;*/
+  /*overflow-y: scroll;*/
   display: flex;
   flex-flow: row wrap;
 

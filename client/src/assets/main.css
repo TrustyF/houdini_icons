@@ -1,5 +1,5 @@
 @import './base.css';
-@import 'node_modules/bootstrap-icons/font/bootstrap-icons.css';
+@import '/node_modules/bootstrap-icons/font/bootstrap-icons.css';
 
 #app {
   max-width: 1280px;
