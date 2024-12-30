@@ -15,7 +15,10 @@ const settings = inject("settings");
 let icon_scale = computed(() => settings.icon_scale)
 let icon_size = computed(() => `${120 * icon_scale.value}px`)
 let image_size = computed(() => `${100 * icon_scale.value}px`)
+let icon_img_loaded = ref(false)
+const icon_img = new URL(`/src/assets/converted_icons/${props['data']['image']}`, import.meta.url).href
 
+let master_icon = ref()
 const expanded = ref(false)
 provide("expanded", expanded)
 
@@ -23,31 +26,23 @@ function close_expand() {
   if (expanded.value) expanded.value = false
 }
 
+
 watch(searching, (oldV, newV) => {
   expanded.value = false
 })
 
-function flash_debug() {
-  const elem = document.getElementById('icon' + props['data']['id'])
-  elem.style.outline = '1px solid red'
-
-  setTimeout(()=>{
-    elem.style.outline = 'unset'
-  },5)
-}
-
-onUpdated(() => {
-  flash_debug()
+onUpdated(()=>{
+  console.log('component updated', props['data']['id'])
 })
 
 </script>
 
 <template>
-  <div :id="'icon'+data['id']" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
+  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
 
-    <img class="icon_img" v-once
-         :src="`/src/assets/converted_icons/${data['image']}`"
-         alt="icon">
+    <img class="icon_img" loading="lazy" onload="icon_img_loaded = true"
+         :src="icon_img"
+         alt="">
 
     <div :class="`icon_name ${expanded ? 'full_name':''}`"
          v-show="!settings.icon_only || expanded"

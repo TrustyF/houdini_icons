@@ -60,7 +60,7 @@ provide("settings", settings)
   display: flex;
   flex-flow: row;
   gap: 10px;
-  /*position: fixed;*/
+  position: fixed;
   top: 13px;
   right: 20px;
   z-index: 10;

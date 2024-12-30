@@ -9,6 +9,10 @@ let emits = defineEmits(["test"]);
 const search = inject("search");
 const searching = inject("searching");
 
+const settings = inject("settings");
+
+let icon_scale = computed(() => settings.icon_scale)
+
 const expanded = inject("expanded");
 
 const filtered = ref([])

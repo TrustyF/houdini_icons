@@ -12,8 +12,8 @@ local_database_uri = f'mysql+pymysql://root:{db_password}@127.0.0.1:3306/{db_nam
 local_sqlite_uri = "sqlite:///assets/icon_db.db"
 
 engine = create_engine(local_sqlite_uri)
-Session = sessionmaker(bind=engine)
-session = Session()
+Session_maker = sessionmaker(bind=engine)
+session = Session_maker()
 Base = declarative_base()
 
 from icon_model import *

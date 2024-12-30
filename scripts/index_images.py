@@ -2,9 +2,10 @@ import os
 import glob
 from dotenv import load_dotenv
 from openai import OpenAI
-from db_loader import session
+from db_loader import session, Session_maker
 from icon_model import Tag, Color, Shape, Icon, IconTagAssoc, IconShapeAssoc, IconColorAssoc, Symbol, \
     IconSymbolAssoc
+from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 import base64
 import json
@@ -68,12 +69,12 @@ def make_ai_request(img):
 
 def dispatch_icons():
 
-    for path in svg_files[:1000]:
-        make_icon(path)
+    # for path in svg_files[:2000]:
+    #     make_icon(path)
 
-    # with ThreadPoolExecutor() as executor:
-    #     futures = [executor.submit(make_icon,path) for path in svg_files[:5]]
-    #     results = [future.result() for future in futures]
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(make_icon,path) for path in svg_files]
+        results = [future.result() for future in futures]
 
 
 def make_icon(icon_path):
@@ -88,19 +89,19 @@ def make_icon(icon_path):
     # -----------------------------------------------------------
     print(ico_name)
 
-    # #  make image
-    # try:
-    #     base64_image = encode_image(icon_path, ico_name, ico_category)
-    # except Exception:
-    #     print(ico_name, " failed")
-    #     return
-    #
-    # #  get attrib
-    # gen_attributes = make_ai_request(base64_image)
-    #
-    # # save to json
-    # with open(f'temp/{ico_name}.json', 'w') as outfile:
-    #     json.dump(json.loads(gen_attributes), outfile, indent=1)
+    #  make image
+    try:
+        base64_image = encode_image(icon_path, ico_name, ico_category)
+    except Exception:
+        print(ico_name, " failed")
+        return
+
+    #  get attrib
+    gen_attributes = make_ai_request(base64_image)
+
+    # save to json
+    with open(f'temp/{ico_name}.json', 'w') as outfile:
+        json.dump(json.loads(gen_attributes), outfile, indent=1)
 
     #  read json
     try:
@@ -109,44 +110,47 @@ def make_icon(icon_path):
     except:
         return
 
+    local_session = Session_maker()
+
     # create icon
     icon = Icon(name=ico_name, category=ico_category, image=ico_img)
-    session.add(icon)
+    local_session.add(icon)
 
     # make tags
     for tag in gen_attributes['tags']:
-        t = session.query(Tag).filter_by(name=tag[0]).one_or_none()
+        t = local_session.query(Tag).filter_by(name=tag[0]).one_or_none()
         if not t:
             t = Tag(name=tag[0])
 
         assoc = IconTagAssoc(icon=icon, tag=t, weight=tag[1])
-        session.add_all([t, assoc])
+        local_session.add_all([t, assoc])
     # make shapes
     for shape in gen_attributes['shapes']:
-        s = session.query(Shape).filter_by(name=shape[0]).one_or_none()
+        s = local_session.query(Shape).filter_by(name=shape[0]).one_or_none()
         if not s:
             s = Shape(name=shape[0])
 
         assoc = IconShapeAssoc(icon=icon, shape=s, weight=shape[1])
-        session.add_all([s, assoc])
+        local_session.add_all([s, assoc])
     # make symbols
     for symbol in gen_attributes['symbols']:
-        sy = session.query(Symbol).filter_by(name=symbol[0]).one_or_none()
+        sy = local_session.query(Symbol).filter_by(name=symbol[0]).one_or_none()
         if not sy:
             sy = Symbol(name=symbol[0])
 
         assoc = IconSymbolAssoc(icon=icon, symbol=sy, weight=symbol[1])
-        session.add_all([sy, assoc])
+        local_session.add_all([sy, assoc])
     # make colors
     for color in gen_attributes['colors']:
-        c = session.query(Color).filter_by(name=color[0]).one_or_none()
+        c = local_session.query(Color).filter_by(name=color[0]).one_or_none()
         if not c:
             c = Color(name=color[0])
 
         assoc = IconColorAssoc(icon=icon, color=c, weight=color[1])
-        session.add_all([c, assoc])
+        local_session.add_all([c, assoc])
 
-    session.commit()
+    local_session.commit()
+    local_session.close()
 
 
 def dump_json():

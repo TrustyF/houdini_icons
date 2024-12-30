@@ -8,8 +8,10 @@ const filtered_data = reactive({ value : []})
 
 const search = inject("search");
 const searching = inject("searching");
+const icon_list_ref =ref()
 
 let page = 1
+let added_icons = 0
 
 function matchFields(data, query) {
   // console.log('query', query)
@@ -78,8 +80,6 @@ function calc_weight(entry) {
 
 function make_search(append=true) {
 
-  // console.log(data)
-
   let new_data = data.sort((a, b) => a.id - b.id)
 
   if (search.value.length > 0){
@@ -90,47 +90,69 @@ function make_search(append=true) {
 
   if (append){
     console.log('appending')
-    Array.prototype.push.apply(filtered_data.value,new_data.slice(Math.max(0,page-1) * 50, page * 50))
+    let pushed = new_data.slice(Math.max(0, page - 1) * 10, page * 10)
+    filtered_data.value.push(...pushed)
+    added_icons = pushed.length
   } else {
     page = 1
-    filtered_data.value = new_data.slice(0,page * 50)
+    filtered_data.value = new_data.slice(0,page * 10)
+    added_icons = 10
   }
 
 
   searching.value = search.value.length > 0
 }
 
-function paginate(){
-  console.log('loading', page)
+function check_list_size(){
+  const padding = 200
+  console.log('checking list')
+
+  if (!icon_list_ref.value) return
+
+  const rect = icon_list_ref.value.getBoundingClientRect();
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+  // Check if the bottom of the element is within the visible viewport
+  if (rect.bottom > -padding && rect.bottom <= windowHeight + padding && added_icons > 0){
+    page+= 1
+    make_search()
+
+    setTimeout(()=>check_list_size(),100)
+  }
 }
 
 watch(search, (oldV, newV) => {
-  // make_search()
 
   clearTimeout(search_timeout);
   search_timeout = setTimeout(() => {
     requestIdleCallback(() => {
       make_search(false)
+      check_list_size()
     })
   }, 150); // Delay the operation
 
 })
 
 onMounted(() => {
+  console.log(data)
   make_search()
+  new ResizeObserver(check_list_size).observe(icon_list_ref.value)
+  addEventListener("scroll",check_list_size)
+  check_list_size()
 })
 
 </script>
 <template>
-  <button @click="page+=1;make_search()">paginate</button>
-  <div class="icons_list">
-    <transition-group name="list">
+  <div class="icons_list" ref="icon_list_ref">
+<!--    <transition-group name="list">-->
 
       <icon_container v-for="icon in filtered_data.value"
                       :key="icon['id']"
                       :data="icon"/>
 
-    </transition-group>
+<!--      <test_cube v-for="icon in filtered_data.value" :key="icon['id']"/>-->
+
+<!--    </transition-group>-->
   </div>
 </template>
 <script>
