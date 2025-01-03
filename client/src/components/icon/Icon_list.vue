@@ -89,7 +89,6 @@ function make_search(append=true) {
   }
 
   if (append){
-    console.log('appending')
     let pushed = new_data.slice(Math.max(0, page - 1) * 10, page * 10)
     filtered_data.value.push(...pushed)
     added_icons = pushed.length
@@ -104,8 +103,7 @@ function make_search(append=true) {
 }
 
 function check_list_size(){
-  const padding = 200
-  console.log('checking list')
+  const padding = 500
 
   if (!icon_list_ref.value) return
 
@@ -116,7 +114,6 @@ function check_list_size(){
   if (rect.bottom > -padding && rect.bottom <= windowHeight + padding && added_icons > 0){
     page+= 1
     make_search()
-
     setTimeout(()=>check_list_size(),100)
   }
 }
@@ -134,9 +131,9 @@ watch(search, (oldV, newV) => {
 })
 
 onMounted(() => {
-  console.log(data)
+  // console.log(data)
   make_search()
-  new ResizeObserver(check_list_size).observe(icon_list_ref.value)
+  // new ResizeObserver(check_list_size).observe(icon_list_ref.value)
   addEventListener("scroll",check_list_size)
   check_list_size()
 })
@@ -144,15 +141,9 @@ onMounted(() => {
 </script>
 <template>
   <div class="icons_list" ref="icon_list_ref">
-<!--    <transition-group name="list">-->
-
       <icon_container v-for="icon in filtered_data.value"
                       :key="icon['id']"
                       :data="icon"/>
-
-<!--      <test_cube v-for="icon in filtered_data.value" :key="icon['id']"/>-->
-
-<!--    </transition-group>-->
   </div>
 </template>
 <script>
@@ -172,20 +163,4 @@ export default {
   /*gap: 5px;*/
 }
 
-.list-move,
-.list-enter-active,
-.list-leave-active {
-  transition: transform 500ms ease, opacity 200ms linear;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.list-leave-active {
-  display: none;
-  /*position: absolute;*/
-}
 </style>

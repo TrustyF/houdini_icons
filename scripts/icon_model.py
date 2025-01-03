@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Column, ForeignKey, Table, Float
 from sqlalchemy.orm import relationship
-from db_loader import session,Base
+from db_loader import session, Base
 
 
 class Icon(Base):
@@ -38,7 +38,7 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconTagAssoc", back_populates='tag',cascade="all, delete-orphan")
+    icons = relationship("IconTagAssoc", back_populates='tag', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Tag(name={self.name})>"
@@ -47,14 +47,13 @@ class Tag(Base):
         return self.name,
 
 
-
 class Shape(Base):
     __tablename__ = "shape"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconShapeAssoc", back_populates='shape',cascade="all, delete-orphan")
+    icons = relationship("IconShapeAssoc", back_populates='shape', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Shape(name={self.name})>"
@@ -69,7 +68,7 @@ class Symbol(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconSymbolAssoc", back_populates='symbol',cascade="all, delete-orphan")
+    icons = relationship("IconSymbolAssoc", back_populates='symbol', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Symbol(name={self.name})>"
@@ -84,7 +83,7 @@ class Color(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
 
-    icons = relationship("IconColorAssoc", back_populates='color',cascade="all, delete-orphan")
+    icons = relationship("IconColorAssoc", back_populates='color', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Color(name={self.name})>"
@@ -95,8 +94,8 @@ class Color(Base):
 
 class IconTagAssoc(Base):
     __tablename__ = "icon_tag_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
-    tag_id = Column(Integer, ForeignKey('tag.id',ondelete="CASCADE"), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id', ondelete="CASCADE"), primary_key=True)
+    tag_id = Column(Integer, ForeignKey('tag.id', ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="tags")
@@ -114,8 +113,8 @@ class IconTagAssoc(Base):
 
 class IconShapeAssoc(Base):
     __tablename__ = "icon_shape_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
-    shape_id = Column(Integer, ForeignKey('shape.id',ondelete="CASCADE"), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id', ondelete="CASCADE"), primary_key=True)
+    shape_id = Column(Integer, ForeignKey('shape.id', ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="shapes")
@@ -133,8 +132,8 @@ class IconShapeAssoc(Base):
 
 class IconSymbolAssoc(Base):
     __tablename__ = "icon_symbol_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
-    symbol_id = Column(Integer, ForeignKey('symbol.id',ondelete="CASCADE"), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id', ondelete="CASCADE"), primary_key=True)
+    symbol_id = Column(Integer, ForeignKey('symbol.id', ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="symbols")
@@ -152,8 +151,8 @@ class IconSymbolAssoc(Base):
 
 class IconColorAssoc(Base):
     __tablename__ = "icon_color_assoc"
-    icon_id = Column(Integer, ForeignKey('icon.id',ondelete="CASCADE"), primary_key=True)
-    color_id = Column(Integer, ForeignKey('color.id',ondelete="CASCADE"), primary_key=True)
+    icon_id = Column(Integer, ForeignKey('icon.id', ondelete="CASCADE"), primary_key=True)
+    color_id = Column(Integer, ForeignKey('color.id', ondelete="CASCADE"), primary_key=True)
     weight = Column(Float)
 
     icon = relationship('Icon', back_populates="colors")

@@ -15,8 +15,9 @@ const settings = inject("settings");
 let icon_scale = computed(() => settings.icon_scale)
 let icon_size = computed(() => `${120 * icon_scale.value}px`)
 let image_size = computed(() => `${100 * icon_scale.value}px`)
-let icon_img_loaded = ref(false)
-const icon_img = new URL(`/src/assets/converted_icons/${props['data']['image']}`, import.meta.url).href
+
+// const icon_img =
+const icon_img = `/src/assets/converted_icons/${props['data']['image']}`
 
 let master_icon = ref()
 const expanded = ref(false)
@@ -40,7 +41,7 @@ onUpdated(()=>{
 <template>
   <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
 
-    <img class="icon_img" loading="lazy" onload="icon_img_loaded = true"
+    <img class="icon_img" loading="lazy"
          :src="icon_img"
          alt="">
 
