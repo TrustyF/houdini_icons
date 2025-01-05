@@ -1,5 +1,7 @@
 import os
 import glob
+
+from cffi.model import qualify
 from dotenv import load_dotenv
 from openai import OpenAI
 from db_loader import session, Session_maker
@@ -9,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 import base64
 import json
+import math
 
 vips_home = r'C:\vips-dev-8.16\bin'
 os.environ['PATH'] = vips_home + ';' + os.environ['PATH']
@@ -68,12 +71,11 @@ def make_ai_request(img):
 
 
 def dispatch_icons():
-
     # for path in svg_files[:2000]:
     #     make_icon(path)
 
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(make_icon,path) for path in svg_files]
+        futures = [executor.submit(make_icon, path) for path in svg_files]
         results = [future.result() for future in futures]
 
 
@@ -182,7 +184,47 @@ def remake_images():
             continue
 
 
+def make_atlas():
+    output_path = 'C:/A_Mod/A_Projects/Webdev/houdini_icons/scripts/output'
+    icons = session.query(Icon.id, Icon.image, Icon.category).order_by(Icon.id).limit(100).all()
+
+    images = [Image.open(f'C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/converted_icons/'
+                         f'{icon.image}') for icon in icons]
+
+    atlas_size = (1024, 1024)
+
+    # Calculate grid size
+    num_images = len(images)
+    cols = math.ceil(math.sqrt(num_images))  # Approximate square grid
+    rows = math.ceil(num_images / cols)
+
+    # Determine max space per image
+    cell_width = atlas_size[0] // cols
+    cell_height = atlas_size[1] // rows
+
+    # Create the atlas
+    atlas = Image.new('RGBA', atlas_size, (0, 0, 0, 0))  # Transparent background
+
+    # Place images into the atlas
+    x_offset, y_offset = 0, 0
+    for img in images:
+        # Scale the image to fit within the cell
+        img.thumbnail((cell_width, cell_height), Image.Resampling.LANCZOS)
+
+        # Paste the image onto the atlas
+        atlas.paste(img, (x_offset, y_offset))
+
+        # Update offsets
+        x_offset += cell_width
+        if x_offset + cell_width > atlas_size[0]:  # Move to the next row
+            x_offset = 0
+            y_offset += cell_height
+
+    # Save the atlas
+    atlas.save(output_path + '/atlast.webp', "WebP", quality=100)
+
+
 if __name__ == '__main__':
     # dispatch_icons()
-    dump_json()
-    # remake_images()
+    # dump_json()
+    make_atlas()
