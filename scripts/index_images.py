@@ -185,43 +185,47 @@ def remake_images():
 
 
 def make_atlas():
-    output_path = 'C:/A_Mod/A_Projects/Webdev/houdini_icons/scripts/output'
-    icons = session.query(Icon.id, Icon.image, Icon.category).order_by(Icon.id).limit(100).all()
+    output_path = "C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/atlas"
 
-    images = [Image.open(f'C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/converted_icons/'
-                         f'{icon.image}') for icon in icons]
+    icons = session.query(Icon.id, Icon.image, Icon.category).order_by(Icon.id).all()
 
-    atlas_size = (1024, 1024)
+    clipped_images = [icons[i:i + 100] for i in range(0, len(icons), 100)]
 
-    # Calculate grid size
-    num_images = len(images)
-    cols = math.ceil(math.sqrt(num_images))  # Approximate square grid
-    rows = math.ceil(num_images / cols)
+    for arr_index, clipped_arr in enumerate(clipped_images):
 
-    # Determine max space per image
-    cell_width = atlas_size[0] // cols
-    cell_height = atlas_size[1] // rows
+        images = [Image.open(f'C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/converted_icons/'
+                             f'{icon.image}') for icon in clipped_arr]
 
-    # Create the atlas
-    atlas = Image.new('RGBA', atlas_size, (0, 0, 0, 0))  # Transparent background
+        grid_size = (10, 10)
+        cell_size = (100, 100)
+        padding = 5
 
-    # Place images into the atlas
-    x_offset, y_offset = 0, 0
-    for img in images:
-        # Scale the image to fit within the cell
-        img.thumbnail((cell_width, cell_height), Image.Resampling.LANCZOS)
+        cols, rows = grid_size
+        cell_width, cell_height = cell_size
+        atlas_width = cols * cell_width
+        atlas_height = rows * cell_height
 
-        # Paste the image onto the atlas
-        atlas.paste(img, (x_offset, y_offset))
+        # Create a blank atlas
+        atlas = Image.new('RGBA', (atlas_width, atlas_height), (0, 0, 0, 0))  # Transparent background
 
-        # Update offsets
-        x_offset += cell_width
-        if x_offset + cell_width > atlas_size[0]:  # Move to the next row
-            x_offset = 0
-            y_offset += cell_height
+        for idx, img in enumerate(images):
 
-    # Save the atlas
-    atlas.save(output_path + '/atlast.webp', "WebP", quality=100)
+            if img.width != cell_width or img.height != cell_height:
+                img.thumbnail((cell_size[0] - padding, cell_size[1] - padding))
+
+            # Calculate grid position
+            col = idx % cols
+            row = idx // cols
+
+            # Calculate paste position
+            x_offset = (col * cell_width) + padding
+            y_offset = (row * cell_height) + padding
+
+            # Paste the image onto the atlas
+            atlas.paste(img, (x_offset, y_offset))
+
+        # Save the atlas
+        atlas.save(output_path + f'/atlas_{arr_index}.webp', "WebP", quality=100)
 
 
 if __name__ == '__main__':

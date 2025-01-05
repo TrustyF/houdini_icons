@@ -16,8 +16,23 @@ let icon_scale = computed(() => settings.icon_scale)
 let icon_size = computed(() => `${120 * icon_scale.value}px`)
 let image_size = computed(() => `${100 * icon_scale.value}px`)
 
-// const icon_img =
-// const icon_img = `/src/assets/converted_icons/${props['data']['image']}`
+let ico_atlas_pos = computed(() => {
+  let id = props['data']['id'] - 1
+  let atlas = Math.floor(id / 100) + 1
+
+  let size = -100
+  let y = Math.floor(id / 10) % 10
+  let x = id % 10
+
+  return `${(x * size) - 2.5}px ${(y * size) - 2.5}px`
+})
+let ico_atlas = computed(() => {
+  let cus_id = String(Math.floor((props['data']['id'] - 1) / 100))
+  let str_url = `/src/assets/atlas/atlas_${cus_id}.webp`
+  let url = new URL(str_url, import.meta.url).href
+
+  return `url(${url})`
+})
 
 let master_icon = ref()
 const expanded = ref(false)
@@ -32,7 +47,6 @@ function get_image(path) {
   return `https://firebasestorage.googleapis.com/v0/b/vue-portfolio-7361b.appspot.com/o/${folder}%2F${path}?alt=media&token=34218f81-850f-42f4-bd7e-6c95e9eee724`
 }
 
-
 watch(searching, (oldV, newV) => {
   expanded.value = false
 })
@@ -46,9 +60,7 @@ onUpdated(() => {
 <template>
   <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
 
-    <img class="icon_img" loading="lazy"
-         :src="get_image(data['image'])"
-         alt="">
+    <div class="icon_img"/>
 
     <div :class="`icon_name ${expanded ? 'full_name':''}`"
          v-show="!settings.icon_only || expanded"
@@ -112,8 +124,15 @@ onUpdated(() => {
 
 .icon_img {
   object-fit: contain;
-  width: 100%;
   max-width: v-bind(icon_size);
+
+  border: none;
+
+  background-image: v-bind(ico_atlas);
+  background-position: v-bind(ico_atlas_pos);
+  background-repeat: no-repeat;
+
+  width: 100px;
   aspect-ratio: 1;
 }
 
