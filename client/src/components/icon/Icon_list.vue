@@ -1,7 +1,9 @@
 <script setup>
 import data from "@/assets/database.json";
-import {inject, onMounted, reactive, ref, watch} from "vue";
-import Icon_container from "@/components/icon/icon_container.vue";
+import {defineAsyncComponent, inject, onMounted, reactive, ref, watch} from "vue";
+// import Icon_container from "@/components/icon/icon_container.vue";
+
+const icon_cont = defineAsyncComponent(() => import("@/components/icon/icon_container.vue"))
 
 let search_timeout;
 const filtered_data = reactive({ value : []})
@@ -141,7 +143,7 @@ onMounted(() => {
 </script>
 <template>
   <div class="icons_list" ref="icon_list_ref">
-      <icon_container v-for="icon in filtered_data.value"
+      <component :is="icon_cont" v-for="icon in filtered_data.value"
                       :key="icon['id']"
                       :data="icon"/>
   </div>

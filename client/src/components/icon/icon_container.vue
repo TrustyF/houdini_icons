@@ -17,7 +17,7 @@ let icon_size = computed(() => `${120 * icon_scale.value}px`)
 let image_size = computed(() => `${100 * icon_scale.value}px`)
 
 // const icon_img =
-const icon_img = `/src/assets/converted_icons/${props['data']['image']}`
+// const icon_img = `/src/assets/converted_icons/${props['data']['image']}`
 
 let master_icon = ref()
 const expanded = ref(false)
@@ -27,12 +27,17 @@ function close_expand() {
   if (expanded.value) expanded.value = false
 }
 
+function get_image(path) {
+  const folder = 'houdini_icons'
+  return `https://firebasestorage.googleapis.com/v0/b/vue-portfolio-7361b.appspot.com/o/${folder}%2F${path}?alt=media&token=34218f81-850f-42f4-bd7e-6c95e9eee724`
+}
+
 
 watch(searching, (oldV, newV) => {
   expanded.value = false
 })
 
-onUpdated(()=>{
+onUpdated(() => {
   console.log('component updated', props['data']['id'])
 })
 
@@ -42,7 +47,7 @@ onUpdated(()=>{
   <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
 
     <img class="icon_img" loading="lazy"
-         :src="icon_img"
+         :src="get_image(data['image'])"
          alt="">
 
     <div :class="`icon_name ${expanded ? 'full_name':''}`"
