@@ -1,11 +1,11 @@
 <script setup>
 import data from "@/assets/database.json";
-import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch} from "vue";
-import Icon_container from "@/components/icon/icon_container.vue";
-import {DynamicScroller, DynamicScrollerItem} from 'vue-virtual-scroller';
+import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch, shallowRef} from "vue";
+
+const icon_container = defineAsyncComponent(() => import( "@/components/icon/icon_container.vue"))
 
 let search_timeout;
-const filtered_data = ref([])
+const filtered_data = shallowRef([])
 
 const search = inject("search");
 const searching = inject("searching");
@@ -80,7 +80,7 @@ function calc_weight(entry) {
   return total_weight
 }
 
-function make_search(append = true) {
+async function make_search(append = true) {
 
   let new_data = data
 
@@ -92,11 +92,11 @@ function make_search(append = true) {
 
   if (append) {
     let pushed = new_data.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
-    filtered_data.value.push(...pushed)
+    filtered_data.value = [...filtered_data.value, ...pushed]
     added_icons = pushed.length
   } else {
     page = 1
-    filtered_data.value = new_data.slice(0, page * ico_per_page)
+    filtered_data.value = [...new_data.slice(0, page * ico_per_page)]
     added_icons = ico_per_page
   }
 
@@ -111,7 +111,7 @@ function resize_callback() {
 }
 
 function check_list_size() {
-  const padding = 3000
+  const padding = 2000
 
   if (!icon_list_ref.value) return
 
@@ -122,7 +122,7 @@ function check_list_size() {
   if (rect.bottom > -padding && rect.bottom <= windowHeight + padding && added_icons > 0) {
     page += 1
     make_search()
-    setTimeout(() => check_list_size(), 200)
+    setTimeout(() => check_list_size(), 500)
   }
 }
 
@@ -151,11 +151,12 @@ onMounted(() => {
 
   <div class="icons_list" ref="icon_list_ref">
 
-    <Icon_container v-for="icon in filtered_data"
-                    :key="icon['id']"
-                    :data="icon"/>
-  </div>
+    <lazy-component v-for="icon in filtered_data" :key="icon['id']" :threshold="0.1" rootMargin="0px 0px 2000px 0px">
+      <component :is="icon_container"
+                 :data="icon"/>
+    </lazy-component>
 
+  </div>
 
 </template>
 <style scoped>
