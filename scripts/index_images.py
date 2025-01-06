@@ -31,7 +31,7 @@ def encode_image(image_path, ico_name, ico_cat):
     sav_image = pyvips.Image.new_from_file(image_path, dpi=300)
     sav_image = pyvips.Image.thumbnail_image(sav_image, 200)
     Image.fromarray(sav_image.numpy()).save(
-        f'C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/converted_icons/{ico_cat}_{ico_name}.webp',
+        f'C:/A_Mod/A_Projects/Webdev/houdini_icons/scripts/assets/converted_icons/{ico_cat}_{ico_name}.webp',
         "WebP", quality=100)
 
     buffer = conv_image.write_to_buffer('.jpg')
@@ -85,7 +85,7 @@ def make_icon(icon_path):
     ico_img = f'{ico_category}_{ico_name}.webp'
 
     if session.query(Icon).filter_by(image=ico_img).one_or_none():
-        print(f"{ico_name} icon found, skipping")
+        print(f"{ico_img} icon found, skipping")
         return
 
     # -----------------------------------------------------------
@@ -156,6 +156,7 @@ def make_icon(icon_path):
 
 
 def dump_json():
+    print('dumping json')
     all_icons = session.query(Icon).all()
     combined = []
 
@@ -185,16 +186,26 @@ def remake_images():
 
 
 def make_atlas():
-    output_path = "C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/atlas"
+    print('making atlas')
+    output_path = "C:/A_Mod/A_Projects/Webdev/houdini_icons/client/public/atlas"
 
-    icons = session.query(Icon.id, Icon.image, Icon.category).order_by(Icon.id).all()
+    for arr_index in range(100):
 
-    clipped_images = [icons[i:i + 100] for i in range(0, len(icons), 100)]
+        total_ico = 100
 
-    for arr_index, clipped_arr in enumerate(clipped_images):
+        icons = (session.query(Icon.id, Icon.image, Icon.category).order_by(Icon.id)
+                 .offset(arr_index * total_ico)
+                 .limit(total_ico)
+                 .all())
 
-        images = [Image.open(f'C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/converted_icons/'
-                             f'{icon.image}') for icon in clipped_arr]
+        if len(icons) < 1:
+            print(f'finished at iter: {arr_index}')
+            break
+
+        print(arr_index,[x.id for x in icons])
+
+        images = [Image.open(f'C:/A_Mod/A_Projects/Webdev/houdini_icons/scripts/assets/converted_icons/'
+                             f'{icon.image}') for icon in icons]
 
         grid_size = (10, 10)
         cell_size = (100, 100)

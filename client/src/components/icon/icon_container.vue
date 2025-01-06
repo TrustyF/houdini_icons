@@ -18,20 +18,21 @@ let image_size = computed(() => `${100 * icon_scale.value}px`)
 
 let ico_atlas_pos = computed(() => {
   let id = props['data']['id'] - 1
-  let atlas = Math.floor(id / 100) + 1
 
-  let size = -100
+  let size = -100 * icon_scale.value
+  let padding = 2.5 * icon_scale.value
   let y = Math.floor(id / 10) % 10
   let x = id % 10
 
-  return `${(x * size) - 2.5}px ${(y * size) - 2.5}px`
+  return `${(x * size) - padding}px ${(y * size) - padding}px`
 })
 let ico_atlas = computed(() => {
-  let cus_id = String(Math.floor((props['data']['id'] - 1) / 100))
-  let str_url = `/src/assets/atlas/atlas_${cus_id}.webp`
-  let url = new URL(str_url, import.meta.url).href
+  let id = props['data']['id'] - 1
 
-  return `url(${url})`
+  let cus_id = Math.floor(id / 100)
+  let str_url = `/atlas/atlas_${cus_id}.webp`
+  // let url = new URL(str_url, import.meta.url).href
+  return `url(${str_url})`
 })
 
 let master_icon = ref()
@@ -70,6 +71,10 @@ onUpdated(() => {
     <div class="icon_category"
          v-show="!settings.icon_only || expanded">{{ data['category']['name'] }}
     </div>
+
+<!--    <div class="icon_category">{{ `${data['id']} - atlas ${Math.floor((data['id']-1) / 100)}` }}</div>-->
+<!--    <div class="icon_category">{{ `x: ${(data['id']-1) % 10} - y: ${Math.floor((data['id']-1) / 10) % 10}` }}</div>-->
+
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
 
@@ -123,16 +128,15 @@ onUpdated(() => {
 }
 
 .icon_img {
-  object-fit: contain;
   max-width: v-bind(icon_size);
 
-  border: none;
-
+  background-size: calc(1000px * v-bind(icon_scale));
   background-image: v-bind(ico_atlas);
   background-position: v-bind(ico_atlas_pos);
   background-repeat: no-repeat;
 
-  width: 100px;
+
+  width: calc(100px * v-bind(icon_scale));
   aspect-ratio: 1;
 }
 
