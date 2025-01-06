@@ -1,17 +1,17 @@
 <script setup>
 import data from "@/assets/database.json";
-import {defineAsyncComponent, inject, onMounted, reactive, ref, watch} from "vue";
+import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch} from "vue";
 import Icon_container from "@/components/icon/icon_container.vue";
-import {RecycleScroller} from "vue-virtual-scroller"
+import {DynamicScroller, DynamicScrollerItem} from 'vue-virtual-scroller';
 
 let search_timeout;
-const filtered_data = reactive({value: []})
+const filtered_data = ref([])
 
 const search = inject("search");
 const searching = inject("searching");
 const icon_list_ref = ref()
 
-let ico_per_page = 50
+let ico_per_page = 26
 let page = 1
 let added_icons = 0
 
@@ -80,9 +80,8 @@ function calc_weight(entry) {
   return total_weight
 }
 
-function make_search(append = false) {
+function make_search(append = true) {
 
-  // let new_data = data.sort((a, b) => a.id - b.id)
   let new_data = data
 
   if (search.value.length > 0) {
@@ -98,16 +97,21 @@ function make_search(append = false) {
   } else {
     page = 1
     filtered_data.value = new_data.slice(0, page * ico_per_page)
-    console.log((filtered_data.value))
     added_icons = ico_per_page
   }
 
+  setTimeout(() => {
+    searching.value = search.value.length > 0
+  }, 5)
+}
 
-  searching.value = search.value.length > 0
+function resize_callback() {
+  searching.value = false
+  check_list_size()
 }
 
 function check_list_size() {
-  const padding = 2000
+  const padding = 3000
 
   if (!icon_list_ref.value) return
 
@@ -118,7 +122,7 @@ function check_list_size() {
   if (rect.bottom > -padding && rect.bottom <= windowHeight + padding && added_icons > 0) {
     page += 1
     make_search()
-    setTimeout(() => check_list_size(), 10)
+    setTimeout(() => check_list_size(), 200)
   }
 }
 
@@ -126,62 +130,49 @@ watch(search, (oldV, newV) => {
 
   clearTimeout(search_timeout);
   search_timeout = setTimeout(() => {
-    requestIdleCallback(() => {
+    requestAnimationFrame(() => {
       make_search(false)
-      check_list_size()
     })
   }, 150); // Delay the operation
 
 })
 
+
 onMounted(() => {
   // console.log(data)
   make_search()
-  // new ResizeObserver(check_list_size).observe(icon_list_ref.value)
-  // addEventListener("scroll", check_list_size)
-  // check_list_size()
+  new ResizeObserver(resize_callback).observe(icon_list_ref.value)
+  addEventListener("scroll", check_list_size)
+  check_list_size()
 })
 
 </script>
 <template>
-  <!--  <div class="icons_list" ref="icon_list_ref">-->
-  <!--      <component :is="icon_cont" v-for="icon in filtered_data.value"-->
-  <!--                      :key="icon['id']"-->
-  <!--                      :data="icon"/>-->
-  <!--  </div>-->
 
-  <RecycleScroller
-    class="icons_list"
-    :items="filtered_data.value"
-    :item_size="100"
-    :key-field="'id'"
-    v-slot="{icon}">
+  <div class="icons_list" ref="icon_list_ref">
 
-<!--    <Icon_container :data="icon"/>-->
-    <div class="test">{{icon.id}}</div>
+    <Icon_container v-for="icon in filtered_data"
+                    :key="icon['id']"
+                    :data="icon"/>
+  </div>
 
-  </RecycleScroller>
 
 </template>
-<script>
-export default {
-  name: 'icon_list'
-}
-</script>
 <style scoped>
 
 .icons_list {
+  content-visibility: auto;
+  contain-intrinsic-size: 150px;
+
   margin-top: 20px;
-  outline: 1px solid red;
-  /*display: flex;*/
-  /*flex-flow: row wrap;*/
-  /*justify-content: flex-start;*/
-  /*align-items: flex-start;*/
+  /*outline: 1px solid red;*/
+
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
   /*gap: 5px;*/
-  height: 100%;
-}
-.test {
-  height: 100px;
+  /*height: 100%;*/
 }
 
 </style>

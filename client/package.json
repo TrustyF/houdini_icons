@@ -14,8 +14,7 @@
     "bootstrap-icons": "^1.11.3",
     "firebase": "^11.1.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.4.5",
-    "vue-virtual-scroller": "^2.0.0-beta.8"
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

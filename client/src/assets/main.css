@@ -3,8 +3,36 @@
 
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+    max-width: 2000px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-weight: normal;
+}
+
+.spinner-border {
+    display: inline-block;
+    width: var(--bs-spinner-width);
+    height: var(--bs-spinner-height);
+    /*vertical-align: var(--bs-spinner-vertical-align);*/
+    border-radius: 50%;
+
+    transform: scale(var(--bs-spinner-scale));
+    animation: var(--bs-spinner-animation-speed) linear infinite var(--bs-spinner-animation-name);
+}
+
+@keyframes spinner-border {
+    to {
+        transform: scale(var(--bs-spinner-scale)) rotate(360deg) /* rtl:ignore */;
+    }
+}
+
+.spinner-border {
+    --bs-spinner-scale: 0.5;
+    --bs-spinner-width: 2rem;
+    --bs-spinner-height: 2rem;
+    --bs-spinner-border-width: 0.3em;
+    --bs-spinner-animation-speed: 1s;
+    --bs-spinner-animation-name: spinner-border;
+    border: var(--bs-spinner-border-width) solid currentcolor;
+    border-right-color: transparent;
 }

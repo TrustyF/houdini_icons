@@ -8,6 +8,7 @@ let props = defineProps({
   },
 });
 const search = inject("search");
+const searching = inject("searching");
 
 </script>
 
@@ -16,6 +17,7 @@ const search = inject("search");
          @keydown.esc="search=''"
          v-model="search">
   <h1 class="search_bar_clean bi-x-circle" @click="search=''"></h1>
+  <div :class="`spinner-border loader ${searching ? 'visible' : ''}`"></div>
 </template>
 
 <style scoped>
@@ -24,10 +26,27 @@ const search = inject("search");
   border: 1px solid #4d4d4d;
   background-color: #282828;
   color: white;
+  z-index: 5;
   border-radius: 5px;
 
   box-shadow: 3px 3px 5px black;
 }
+
+.loader {
+  position: absolute;
+  right: -35px;
+  margin-top: -2px;
+  z-index: 0;
+  visibility: hidden;
+  opacity: 100;
+  transition: 250ms opacity;
+}
+.visible {
+  transition-delay: 500ms;
+  visibility: visible;
+  opacity: 0;
+}
+
 .search_bar_clean {
   cursor: pointer;
   font-size: 0.8em;

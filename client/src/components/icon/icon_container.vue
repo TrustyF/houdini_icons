@@ -52,14 +52,18 @@ watch(searching, (oldV, newV) => {
   expanded.value = false
 })
 
-onUpdated(() => {
-  console.log('component updated', props['data']['id'])
-})
+// onUpdated(() => {
+//   console.log('component updated', props['data']['id'])
+//   master_icon.value.style.backgroundColor = "red"
+//   setTimeout(() => {
+//     master_icon.value.style.backgroundColor = "unset"
+//   },100)
+// })
 
 </script>
 
 <template>
-  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
+  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`" v-memo="[expanded,settings.icon_only]">
 
     <div class="icon_img"/>
 
@@ -72,8 +76,8 @@ onUpdated(() => {
          v-show="!settings.icon_only || expanded">{{ data['category']['name'] }}
     </div>
 
-<!--    <div class="icon_category">{{ `${data['id']} - atlas ${Math.floor((data['id']-1) / 100)}` }}</div>-->
-<!--    <div class="icon_category">{{ `x: ${(data['id']-1) % 10} - y: ${Math.floor((data['id']-1) / 10) % 10}` }}</div>-->
+    <!--    <div class="icon_category">{{ `${data['id']} - atlas ${Math.floor((data['id']-1) / 100)}` }}</div>-->
+    <!--    <div class="icon_category">{{ `x: ${(data['id']-1) % 10} - y: ${Math.floor((data['id']-1) / 10) % 10}` }}</div>-->
 
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
@@ -103,7 +107,7 @@ onUpdated(() => {
 
 <style scoped>
 .icon_container_wrapper {
-  width: v-bind(icon_size);
+  max-width: v-bind(icon_size);
 
   position: relative;
   display: flex;
@@ -124,6 +128,7 @@ onUpdated(() => {
 .expanded {
   /*flex-grow: 10;*/
   width: 300px;
+  max-width:300px;
   background-color: #1f1f1f;
 }
 
