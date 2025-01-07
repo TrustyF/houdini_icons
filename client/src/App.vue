@@ -1,5 +1,12 @@
 <script setup>
 import {RouterLink, RouterView} from 'vue-router'
+import {onMounted} from "vue";
+import {ping_user_leave} from "@/scripts/log_events.js";
+
+onMounted(()=>{
+  ping_user_leave()
+  setInterval(() => ping_user_leave(), 5000)
+})
 </script>
 
 <template>

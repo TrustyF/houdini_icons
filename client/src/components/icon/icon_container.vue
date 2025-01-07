@@ -2,13 +2,12 @@
 import {inject, onMounted, watch, ref, computed, provide, onUpdated} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import {clickOutSide as vClickOutSide} from '@mahdikhashan/vue3-click-outside'
+import {log_event} from "@/scripts/log_events.js";
 
 let props = defineProps({
   data: Object
 });
 
-let emits = defineEmits(["test"]);
-const search = inject("search");
 const searching = inject("searching");
 const settings = inject("settings");
 
@@ -36,21 +35,27 @@ let ico_atlas = computed(() => {
 })
 
 let master_icon = ref()
-const expanded = ref(false)
+let expanded = ref(false)
 provide("expanded", expanded)
 
 function close_expand() {
   if (expanded.value) expanded.value = false
 }
 
-function get_image(path) {
-  const folder = 'houdini_icons'
-  return `https://firebasestorage.googleapis.com/v0/b/vue-portfolio-7361b.appspot.com/o/${folder}%2F${path}?alt=media&token=34218f81-850f-42f4-bd7e-6c95e9eee724`
+function expand(){
+
+  if (!expanded.value) {
+    expanded.value = true
+    log_event('expanded', 'int', props['data']['image'])
+  } else {
+    expanded.value = false
+  }
+
 }
 
-watch(searching, (oldV, newV) => {
-  expanded.value = false
-})
+// watch(searching, (oldV, newV) => {
+//   expanded.value = false
+// })
 
 // onUpdated(() => {
 //   console.log('component updated', props['data']['id'])
@@ -63,7 +68,11 @@ watch(searching, (oldV, newV) => {
 </script>
 
 <template>
-  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`" v-memo="[expanded,settings.icon_only]">
+  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
+
+<!--    <div class="spinner-cont">-->
+<!--      <div class="spinner-border"></div>-->
+<!--    </div>-->
 
     <div class="icon_img"/>
 
@@ -75,10 +84,6 @@ watch(searching, (oldV, newV) => {
     <div class="icon_category"
          v-show="!settings.icon_only || expanded">{{ data['category']['name'] }}
     </div>
-
-    <!--    <div class="icon_category">{{ `${data['id']} - atlas ${Math.floor((data['id']-1) / 100)}` }}</div>-->
-    <!--    <div class="icon_category">{{ `x: ${(data['id']-1) % 10} - y: ${Math.floor((data['id']-1) / 10) % 10}` }}</div>-->
-
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
 
@@ -101,7 +106,7 @@ watch(searching, (oldV, newV) => {
 
     </div>
 
-    <div class="click_zone" @click="expanded = !expanded" v-click-out-side="close_expand"></div>
+    <div class="click_zone" @click="expand" v-click-out-side="close_expand"></div>
   </div>
 </template>
 
@@ -118,13 +123,25 @@ watch(searching, (oldV, newV) => {
   padding: calc(10px * v-bind(icon_scale));
   border-radius: 5px;
   user-select: none;
-  cursor: pointer;
 }
 
 .icon_container_wrapper:hover {
   background-color: #1f1f1f;
 }
+.spinner-cont {
+  position: absolute;
+  width: 100%;
+  height: 100%;
 
+  z-index: -1;
+
+  opacity: 100;
+  animation: fade 1s forwards;
+}
+
+@keyframes fade {
+  to {opacity: 0}
+}
 .expanded {
   /*flex-grow: 10;*/
   width: 300px;
@@ -210,6 +227,7 @@ watch(searching, (oldV, newV) => {
   position: absolute;
   left: 0;
   top: 0;
+  cursor: pointer;
 }
 
 </style>

@@ -47,9 +47,7 @@ onMounted(() => {
 <!--    <p style="font-size: 0.7em;padding: 3px">{{title}}</p>-->
     <div v-for="tag in filtered" :key="tag['id']">
       <div class="tag" @click="search=tag['name'];expanded = false">
-        <h1>{{ `${tag['name']}` }}</h1>
-        <h1 class="tag_count">{{ `${tag['count']}` }}</h1>
-<!--        <h1 class="tag_count">{{ `${tag['weight']}` }}</h1>-->
+        <h1>{{ `${tag['name']} ${tag['count']}` }}</h1>
       </div>
     </div>
   </div>
@@ -63,22 +61,32 @@ onMounted(() => {
   justify-items: flex-start;
   gap: 2px;
   margin: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .tag {
+  cursor: pointer;
   position: relative;
   display: flex;
+  flex-flow: row;
   gap: 5px;
   font-size: 0.7em;
   background-color: #282828;
   padding: 2px 5px 2px 5px;
   border-radius: 5px;
+  /*width: 100%;*/
+  /*overflow: hidden;*/
 }
 .tag:hover{
   background-color: #2c3e50;
 }
 h1 {
+  /*width: 100%;*/
   font-size: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 </style>

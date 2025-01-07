@@ -1,7 +1,10 @@
 <script setup>
-import {onMounted, provide, reactive, ref, watch} from "vue";
-import Search_bar from "@/components/generic/search_bar.vue";
-import Icon_list from "@/components/icon/Icon_list.vue";
+import {defineAsyncComponent, onMounted, provide, reactive, ref, watch} from "vue";
+// import Search_bar from "@/components/generic/search_bar.vue";
+// import Icon_list from "@/components/icon/Icon_list.vue";
+
+const search_bar = defineAsyncComponent(()=> import("@/components/generic/search_bar.vue"))
+const icon_list = defineAsyncComponent(()=> import("@/components/icon/Icon_list.vue"))
 
 const search = ref("")
 const searching = ref(false)

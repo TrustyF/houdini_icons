@@ -1,8 +1,8 @@
 <script setup>
 import data from "@/assets/database.json";
 import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch, shallowRef} from "vue";
-
-const icon_container = defineAsyncComponent(() => import( "@/components/icon/icon_container.vue"))
+import {log_event} from "@/scripts/log_events.js";
+import Icon_container from "@/components/icon/icon_container.vue";
 
 let search_timeout;
 const filtered_data = shallowRef([])
@@ -11,7 +11,7 @@ const search = inject("search");
 const searching = inject("searching");
 const icon_list_ref = ref()
 
-let ico_per_page = 26
+let ico_per_page = 51
 let page = 1
 let added_icons = 0
 
@@ -80,7 +80,7 @@ function calc_weight(entry) {
   return total_weight
 }
 
-async function make_search(append = true) {
+function make_search(append = true) {
 
   let new_data = data
 
@@ -102,12 +102,15 @@ async function make_search(append = true) {
 
   setTimeout(() => {
     searching.value = search.value.length > 0
+    check_list_size()
   }, 5)
 }
 
 function resize_callback() {
-  searching.value = false
-  check_list_size()
+  requestIdleCallback(() => {
+    searching.value = false
+    check_list_size()
+  })
 }
 
 function check_list_size() {
@@ -133,15 +136,13 @@ watch(search, (oldV, newV) => {
     requestAnimationFrame(() => {
       make_search(false)
     })
-  }, 150); // Delay the operation
+    if (oldV !== newV && search.value.length > 0) log_event('search', 'int', search.value)
+  }, 300); // Delay the operation
 
 })
 
-
 onMounted(() => {
-  // console.log(data)
   make_search()
-  new ResizeObserver(resize_callback).observe(icon_list_ref.value)
   addEventListener("scroll", check_list_size)
   check_list_size()
 })
@@ -152,9 +153,12 @@ onMounted(() => {
   <div class="icons_list" ref="icon_list_ref">
 
     <lazy-component v-for="icon in filtered_data" :key="icon['id']" :threshold="0.1" rootMargin="0px 0px 2000px 0px">
-      <component :is="icon_container"
-                 :data="icon"/>
+      <icon_container :data="icon"/>
     </lazy-component>
+
+    <div :class="`list-spinner ${searching ? 'visible':''}`">
+      <div class="spinner-border"></div>
+    </div>
 
   </div>
 
@@ -174,6 +178,22 @@ onMounted(() => {
   align-items: flex-start;
   /*gap: 5px;*/
   /*height: 100%;*/
+}
+
+.list-spinner {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  visibility: hidden;
+  opacity: 100;
+  transition: 250ms opacity;
+}
+
+.visible {
+  transition-delay: 500ms;
+  visibility: visible;
+  opacity: 0;
 }
 
 </style>
