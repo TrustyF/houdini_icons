@@ -170,6 +170,7 @@ onMounted(() => {
   contain-intrinsic-size: 150px;
 
   margin-top: 20px;
+  margin-bottom: 300px;
   /*outline: 1px solid red;*/
 
   display: flex;
@@ -177,7 +178,6 @@ onMounted(() => {
   justify-content: flex-start;
   align-items: flex-start;
   /*gap: 5px;*/
-  /*height: 100%;*/
 }
 
 .list-spinner {

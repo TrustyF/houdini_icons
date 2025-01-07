@@ -17,5 +17,5 @@ session = Session_maker()
 Base = declarative_base()
 
 from icon_model import *
-# Base.metadata.drop_all(engine)
+Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)

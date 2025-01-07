@@ -47,7 +47,7 @@ onMounted(() => {
 <!--    <p style="font-size: 0.7em;padding: 3px">{{title}}</p>-->
     <div v-for="tag in filtered" :key="tag['id']">
       <div class="tag" @click="search=tag['name'];expanded = false">
-        <h1>{{ `${tag['name']} ${tag['count']}` }}</h1>
+        <h1>{{ `${tag['name']} ${tag['count'] > 1 ? tag['count']:''}` }}</h1>
       </div>
     </div>
   </div>

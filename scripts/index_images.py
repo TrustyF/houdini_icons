@@ -5,8 +5,7 @@ from cffi.model import qualify
 from dotenv import load_dotenv
 from openai import OpenAI
 from db_loader import session, Session_maker
-from icon_model import Tag, Color, Shape, Icon, IconTagAssoc, IconShapeAssoc, IconColorAssoc, Symbol, \
-    IconSymbolAssoc
+from icon_model import Tag, Icon, IconTagAssoc
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 import base64
@@ -71,15 +70,18 @@ def make_ai_request(img):
 
 
 def dispatch_icons():
-    # for path in svg_files[:2000]:
+    # for path in svg_files:
     #     make_icon(path)
 
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(make_icon, path) for path in svg_files]
-        results = [future.result() for future in futures]
+        [executor.submit(make_icon, path) for path in svg_files]
 
 
 def make_icon(icon_path):
+
+    def validate_name(name):
+        return name.strip().lower().replace('_', '')
+
     ico_name = os.path.splitext(os.path.basename(icon_path))[0]
     ico_category = os.path.basename(os.path.dirname(icon_path))
     ico_img = f'{ico_category}_{ico_name}.webp'
@@ -88,28 +90,30 @@ def make_icon(icon_path):
         print(f"{ico_img} icon found, skipping")
         return
 
-    # -----------------------------------------------------------
     print(ico_name)
 
-    #  make image
-    try:
-        base64_image = encode_image(icon_path, ico_name, ico_category)
-    except Exception:
-        print(ico_name, " failed")
-        return
+    # -----------------------------------------------------------
 
-    #  get attrib
-    gen_attributes = make_ai_request(base64_image)
-
-    # save to json
-    with open(f'temp/{ico_name}.json', 'w') as outfile:
-        json.dump(json.loads(gen_attributes), outfile, indent=1)
+    # #  make image
+    # try:
+    #     base64_image = encode_image(icon_path, ico_name, ico_category)
+    # except Exception:
+    #     print(ico_name, " failed")
+    #     return
+    #
+    # #  get attrib
+    # gen_attributes = make_ai_request(base64_image)
+    #
+    # # save to json
+    # with open(f'temp/{ico_name}.json', 'w') as outfile:
+    #     json.dump(json.loads(gen_attributes), outfile, indent=1)
 
     #  read json
     try:
         with open(f'temp/{ico_name}.json', 'r') as infile:
             gen_attributes = json.load(infile)
     except:
+        print('no json found', ico_name)
         return
 
     local_session = Session_maker()
@@ -119,37 +123,20 @@ def make_icon(icon_path):
     local_session.add(icon)
 
     # make tags
-    for tag in gen_attributes['tags']:
-        t = local_session.query(Tag).filter_by(name=tag[0]).one_or_none()
-        if not t:
-            t = Tag(name=tag[0])
+    for key, value in gen_attributes.items():
+        # print(value,key[:-1])
 
-        assoc = IconTagAssoc(icon=icon, tag=t, weight=tag[1])
-        local_session.add_all([t, assoc])
-    # make shapes
-    for shape in gen_attributes['shapes']:
-        s = local_session.query(Shape).filter_by(name=shape[0]).one_or_none()
-        if not s:
-            s = Shape(name=shape[0])
+        for tag in value:
+            name = validate_name(tag[0])
+            t = local_session.query(Tag).filter_by(name=name).one_or_none()
 
-        assoc = IconShapeAssoc(icon=icon, shape=s, weight=shape[1])
-        local_session.add_all([s, assoc])
-    # make symbols
-    for symbol in gen_attributes['symbols']:
-        sy = local_session.query(Symbol).filter_by(name=symbol[0]).one_or_none()
-        if not sy:
-            sy = Symbol(name=symbol[0])
+            if not t:
+                t = Tag(name=name, type=key[:-1])
+                local_session.add(t)
 
-        assoc = IconSymbolAssoc(icon=icon, symbol=sy, weight=symbol[1])
-        local_session.add_all([sy, assoc])
-    # make colors
-    for color in gen_attributes['colors']:
-        c = local_session.query(Color).filter_by(name=color[0]).one_or_none()
-        if not c:
-            c = Color(name=color[0])
-
-        assoc = IconColorAssoc(icon=icon, color=c, weight=color[1])
-        local_session.add_all([c, assoc])
+                # make assoc
+                assoc = IconTagAssoc(icon=icon, tag=t, weight=tag[1])
+                local_session.add(assoc)
 
     local_session.commit()
     local_session.close()
@@ -202,7 +189,7 @@ def make_atlas():
             print(f'finished at iter: {arr_index}')
             break
 
-        print(arr_index,[x.id for x in icons])
+        print(arr_index, [x.id for x in icons])
 
         images = [Image.open(f'C:/A_Mod/A_Projects/Webdev/houdini_icons/scripts/assets/converted_icons/'
                              f'{icon.image}') for icon in icons]
@@ -240,6 +227,6 @@ def make_atlas():
 
 
 if __name__ == '__main__':
-    # dispatch_icons()
-    # dump_json()
-    make_atlas()
+    dispatch_icons()
+    dump_json()
+    # make_atlas()
