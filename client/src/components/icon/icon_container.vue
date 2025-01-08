@@ -53,18 +53,6 @@ function expand(){
 
 }
 
-// watch(searching, (oldV, newV) => {
-//   expanded.value = false
-// })
-
-// onUpdated(() => {
-//   console.log('component updated', props['data']['id'])
-//   master_icon.value.style.backgroundColor = "red"
-//   setTimeout(() => {
-//     master_icon.value.style.backgroundColor = "unset"
-//   },100)
-// })
-
 </script>
 
 <template>
@@ -90,18 +78,6 @@ function expand(){
       <tag_list :content="data['tags']"
                 v-show="data['tags'] || expanded"
                 title="Tags">
-      </tag_list>
-      <tag_list :content="data['shapes']"
-                v-show="data['shapes'] || expanded"
-                title="Shapes">
-      </tag_list>
-      <tag_list :content="data['symbols']"
-                v-show="data['symbols'] || expanded"
-                title="Symbols">
-      </tag_list>
-      <tag_list :content="data['colors']"
-                v-show="data['colors'] || expanded"
-                title="Colors">
       </tag_list>
 
     </div>

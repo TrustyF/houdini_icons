@@ -27,29 +27,16 @@ function matchFields(data, query) {
 
     // Check for strict matching prefix
     if (query.startsWith("#strict ")) {
-      const strictQuery = query.slice(8); // Remove "#strict " prefix
-      return value === strictQuery;      // Strict equality check
+      const strictQuery = query.slice(8);
+      return value === strictQuery;
     }
 
-    // Default behavior: substring matching
     return value.includes(query)
   }
 
   dat['name']['match'] = matchesQuery(dat['name']['name']) ? 1 : 0;
   dat['category']['match'] = matchesQuery(dat['category']['name']) ? 1 : 0;
-
-  dat['tags'].forEach((elem) => {
-    elem['match'] = matchesQuery(elem['name']) ? 1 : 0;
-  })
-  dat['shapes'].forEach((elem) => {
-    elem['match'] = matchesQuery(elem['name']) ? 1 : 0;
-  })
-  dat['symbols'].forEach((elem) => {
-    elem['match'] = matchesQuery(elem['name']) ? 1 : 0;
-  })
-  dat['colors'].forEach((elem) => {
-    elem['match'] = matchesQuery(elem['name']) ? 1 : 0;
-  })
+  dat['tags'].forEach((elem) => elem['match'] = matchesQuery(elem['name']) ? 1 : 0)
 
   return data;
 }
@@ -71,11 +58,7 @@ function calc_weight(entry) {
 
   total_weight += entry['name']['match'] ? 1 : 0
   total_weight += entry['category']['match'] ? 1 : 0
-
   total_weight += entry['tags'].reduce((sum, att) => att['match'] ? sum + att['weight'] : sum, 0)
-  total_weight += entry['shapes'].reduce((sum, att) => att['match'] ? sum + att['weight'] : sum, 0)
-  total_weight += entry['symbols'].reduce((sum, att) => att['match'] ? sum + att['weight'] : sum, 0)
-  total_weight += entry['colors'].reduce((sum, att) => att['match'] ? sum + att['weight'] : sum, 0)
 
   return total_weight
 }
@@ -94,6 +77,8 @@ function make_search(append = true) {
     let pushed = new_data.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
     filtered_data.value = [...filtered_data.value, ...pushed]
     added_icons = pushed.length
+    console.log(filtered_data.value)
+
   } else {
     page = 1
     filtered_data.value = [...new_data.slice(0, page * ico_per_page)]

@@ -70,7 +70,7 @@ def make_ai_request(img):
 
 
 def dispatch_icons():
-    # for path in svg_files:
+    # for path in svg_files[:2]:
     #     make_icon(path)
 
     with ThreadPoolExecutor() as executor:
@@ -92,25 +92,31 @@ def make_icon(icon_path):
 
     print(ico_name)
 
-    # -----------------------------------------------------------
+    # check for dupe
+    matching_svg = glob.glob(os.path.join(main_dir, 'icons','**', f'{ico_name}.svg'), recursive=True)
+    if len(matching_svg) > 1:
 
-    # #  make image
-    # try:
-    #     base64_image = encode_image(icon_path, ico_name, ico_category)
-    # except Exception:
-    #     print(ico_name, " failed")
-    #     return
-    #
-    # #  get attrib
-    # gen_attributes = make_ai_request(base64_image)
-    #
-    # # save to json
-    # with open(f'temp/{ico_name}.json', 'w') as outfile:
-    #     json.dump(json.loads(gen_attributes), outfile, indent=1)
+        print('requesting',ico_name)
+
+        #  make image
+        try:
+            base64_image = encode_image(icon_path, ico_name, ico_category)
+        except Exception:
+            print(ico_name, " failed")
+            return
+
+        #  get attrib
+        gen_attributes = make_ai_request(base64_image)
+
+        # save to json
+        with open(f'temp_fixed/{ico_category}_{ico_name}.json', 'w') as outfile:
+            json.dump(json.loads(gen_attributes), outfile, indent=1)
+
+    return
 
     #  read json
     try:
-        with open(f'temp/{ico_name}.json', 'r') as infile:
+        with open(f'temp_fixed/{ico_name}.json', 'r') as infile:
             gen_attributes = json.load(infile)
     except:
         print('no json found', ico_name)
@@ -124,7 +130,6 @@ def make_icon(icon_path):
 
     # make tags
     for key, value in gen_attributes.items():
-        # print(value,key[:-1])
 
         for tag in value:
             name = validate_name(tag[0])
@@ -133,10 +138,14 @@ def make_icon(icon_path):
             if not t:
                 t = Tag(name=name, type=key[:-1])
                 local_session.add(t)
+                local_session.commit()
 
+            if not session.query(IconTagAssoc).filter_by(icon_id=icon.id,tag_id=t.id).one_or_none():
                 # make assoc
                 assoc = IconTagAssoc(icon=icon, tag=t, weight=tag[1])
                 local_session.add(assoc)
+                local_session.commit()
+
 
     local_session.commit()
     local_session.close()
@@ -228,5 +237,5 @@ def make_atlas():
 
 if __name__ == '__main__':
     dispatch_icons()
-    dump_json()
+    # dump_json()
     # make_atlas()
