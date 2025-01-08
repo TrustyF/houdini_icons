@@ -2,6 +2,7 @@
 import {RouterLink, RouterView} from 'vue-router'
 import {onMounted} from "vue";
 import {ping_user_leave} from "@/scripts/log_events.js";
+import Navbar from "@/components/generic/navbar.vue";
 
 onMounted(()=>{
   ping_user_leave()
@@ -10,21 +11,18 @@ onMounted(()=>{
 </script>
 
 <template>
-  <div class="wrapper">
+  <div class="home_wrapper">
+    <navbar/>
     <RouterView/>
   </div>
 </template>
 
 <style scoped>
-.wrapper {
-  /*outline: 1px solid red;*/
+.home_wrapper {
   position: relative;
 
-  margin: 0 0 0 0;
+  margin: 0;
   /*max-width: 1080px;*/
   min-height: 80vh;
-  /*overflow-x: clip;*/
-
-  /*padding: 0 40px 0 40px;*/
 }
 </style>
