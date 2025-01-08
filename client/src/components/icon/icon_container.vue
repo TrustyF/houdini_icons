@@ -36,7 +36,6 @@ let ico_atlas = computed(() => {
 
 let master_icon = ref()
 let expanded = ref(false)
-provide("expanded", expanded)
 
 function close_expand() {
   if (expanded.value) expanded.value = false
@@ -75,7 +74,7 @@ function expand(){
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
 
-      <tag_list :content="data['tags']"
+      <tag_list :content="data['tags']" :expanded="expanded"
                 v-show="data['tags'] || expanded"
                 title="Tags">
       </tag_list>

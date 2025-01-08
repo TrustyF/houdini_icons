@@ -1,53 +1,30 @@
 <script setup>
-import {inject, onMounted, watch, ref, computed} from "vue";
+import {inject, onMounted, watch, ref, computed, onUpdated} from "vue";
 
 let props = defineProps({
-  content: Array,
-  title: String
+  content: Array, expanded: Boolean
 });
 let emits = defineEmits(["test"]);
 const search = inject("search");
 const searching = inject("searching");
+const tag_ref = ref()
 
 const settings = inject("settings");
 
 let icon_scale = computed(() => settings.icon_scale)
 
-const expanded = inject("expanded");
-
-const filtered = ref([])
-
-function compute() {
-  return props['content'].filter((elem) => elem['match'] === 1)
-}
-
-function expand() {
-  return props['content']
-}
-
-watch(searching, (oldV, newV) => {
-  filtered.value = compute()
-})
-watch(expanded, (oldV, newV) => {
-  if (oldV) {
-    filtered.value = expand()
-  } else {
-    filtered.value = compute()
-  }
-})
-
-onMounted(() => {
-  filtered.value = compute()
-})
+const filtered = computed(() => props['content'].filter((elem) => {
+  if (props['expanded']) return true
+  return elem['match'] === 1
+}))
 
 </script>
 
 <template>
-  <div class="tag_list" v-if="filtered.length > 0">
-<!--    <p style="font-size: 0.7em;padding: 3px">{{title}}</p>-->
+  <div class="tag_list">
     <div v-for="tag in filtered" :key="tag['id']">
-      <div class="tag" @click="search=tag['name'];expanded = false">
-        <h1>{{ `${tag['name']} ${tag['count'] > 1 ? tag['count']:''}` }}</h1>
+      <div ref="tag_ref" class="tag" @click="search=`#${tag['type']} ${tag['name']}`">
+        <h1>{{ `${tag['name']} ${tag['count'] > 1 ? tag['count'] : ''}` }}</h1>
       </div>
     </div>
   </div>
@@ -78,9 +55,11 @@ onMounted(() => {
   /*width: 100%;*/
   /*overflow: hidden;*/
 }
-.tag:hover{
+
+.tag:hover {
   background-color: #2c3e50;
 }
+
 h1 {
   /*width: 100%;*/
   font-size: inherit;

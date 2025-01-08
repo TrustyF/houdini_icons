@@ -20,7 +20,7 @@ function matchFields(data, query) {
 
   const dat = {...data}
 
-  const matchesQuery = (value) => {
+  const matchesQuery = (value,type=null) => {
     if (typeof (value) !== "string" && query.length < 1) {
       return false;
     }
@@ -31,12 +31,27 @@ function matchFields(data, query) {
       return value === strictQuery;
     }
 
+    if (query.startsWith("#color ")) {
+      const strictQuery = query.slice(7);
+      return value === strictQuery && type === 'color';
+    }
+
+    if (query.startsWith("#tag ")) {
+      const strictQuery = query.slice(5);
+      return value === strictQuery && type === 'tag';
+    }
+
+    if (query.startsWith("#symbol ")) {
+      const strictQuery = query.slice(8);
+      return value === strictQuery && type === 'symbol';
+    }
+
     return value.includes(query)
   }
 
   dat['name']['match'] = matchesQuery(dat['name']['name']) ? 1 : 0;
   dat['category']['match'] = matchesQuery(dat['category']['name']) ? 1 : 0;
-  dat['tags'].forEach((elem) => elem['match'] = matchesQuery(elem['name']) ? 1 : 0)
+  dat['tags'].forEach((elem) => elem['match'] = matchesQuery(elem['name'],elem['type']) ? 1 : 0)
 
   return data;
 }
@@ -77,8 +92,6 @@ function make_search(append = true) {
     let pushed = new_data.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
     filtered_data.value = [...filtered_data.value, ...pushed]
     added_icons = pushed.length
-    console.log(filtered_data.value)
-
   } else {
     page = 1
     filtered_data.value = [...new_data.slice(0, page * ico_per_page)]
@@ -89,13 +102,6 @@ function make_search(append = true) {
     searching.value = search.value.length > 0
     check_list_size()
   }, 5)
-}
-
-function resize_callback() {
-  requestIdleCallback(() => {
-    searching.value = false
-    check_list_size()
-  })
 }
 
 function check_list_size() {

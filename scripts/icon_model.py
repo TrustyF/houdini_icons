@@ -2,6 +2,13 @@ from sqlalchemy import Integer, String, Column, ForeignKey, Table, Float
 from sqlalchemy.orm import relationship, validates
 from db_loader import session, Base
 
+custom_tag_order = {
+    "tag": 4,
+    "shape": 3,
+    "symbol": 2,
+    "color": 1,
+}
+
 
 class Icon(Base):
     __tablename__ = "icon"
@@ -22,7 +29,8 @@ class Icon(Base):
             "name": {"name": self.name, "match": 0, "weight": 1},
             "image": self.image,
             "category": {"name": self.category, "match": 0, "weight": 1},
-            "tags": sorted([x.to_dict() for x in self.tags], reverse=True, key=lambda x: x['weight'])
+            "tags": sorted([x.to_dict() for x in self.tags], reverse=True, key=lambda x:
+            (custom_tag_order[x['type']], x['weight']))
         }
 
 
@@ -54,6 +62,16 @@ class IconTagAssoc(Base):
 
     icon = relationship('Icon', back_populates="tags")
     tag = relationship('Tag', back_populates="icons")
+
+    @validates('weight')
+    def val(self, key, value):
+
+        value = float(value)
+
+        if value > 1:
+            return value / 10
+        else:
+            return value
 
     def to_dict(self):
         return {
