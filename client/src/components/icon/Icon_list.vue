@@ -128,7 +128,7 @@ watch(search, (oldV, newV) => {
       make_search(false)
     })
     if (oldV !== newV && search.value.length > 0) log_event('search', 'int', search.value)
-  }, 300); // Delay the operation
+  }, 500); // Delay the operation
 
 })
 

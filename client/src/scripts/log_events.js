@@ -7,48 +7,48 @@ let curr_api = server_url
 let project = 'houdini_icons'
 
 
-export async function log_event(name, type, info) {
+export async function log_event(name, type, info, timestamp = Date.now()) {
 
-    let url = `${curr_api}/event/add`
+  let url = `${curr_api}/event/add`
 
-    let params = {
-        name: String(name),
-        source: project,
-        type: String(type),
-        info: String(info),
-        uid: session_seed,
-        geo: await geo_location,
-        timestamp: Date.now()
-    }
+  let params = {
+    name: String(name),
+    source: project,
+    type: String(type),
+    info: String(info),
+    uid: session_seed,
+    geo: await geo_location,
+    timestamp: timestamp
+  }
 
-    if (import.meta.env.DEV && curr_api !== local_url) {
-        console.log('dev log', params)
-        return
-    }
+  if (import.meta.env.DEV && curr_api !== local_url) {
+    console.log('dev log', params)
+    return
+  }
 
-    axios.post(url, params)
-        .then(resp => {
-            console.log('successfully logged event')
-        })
-        .catch(error => null)
+  axios.post(url, params)
+    .then(resp => {
+      // console.log('successfully logged event')
+    })
+    .catch(error => null)
 }
 
 export async function ping_user_leave() {
 
-    let url = `${curr_api}/event/ping_user_alive`
+  let url = `${curr_api}/event/ping_user_alive`
 
-    let params = {
-        source: project,
-        uid: session_seed,
-        geo: await geo_location,
-        timestamp: Date.now()
-    }
+  let params = {
+    source: project,
+    uid: session_seed,
+    geo: await geo_location,
+    timestamp: Date.now()
+  }
 
-    if (import.meta.env.DEV && curr_api !== local_url) {
-        return
-    }
+  if (import.meta.env.DEV && curr_api !== local_url) {
+    return
+  }
 
-    axios.put(url, params)
-        .then(resp => null)
-        .catch(error => null)
+  axios.put(url, params)
+    .then(resp => null)
+    .catch(error => null)
 }

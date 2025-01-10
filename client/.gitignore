@@ -30,3 +30,4 @@ coverage
 *.tsbuildinfo
 /src/assets/icons/
 /package-lock.json
+/public/atlas/
