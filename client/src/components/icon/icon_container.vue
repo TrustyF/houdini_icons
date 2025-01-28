@@ -94,7 +94,7 @@ function add_to_clipboard() {
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
 
-      <tag_list :content="data['tags']" :expanded="expanded"
+      <tag_list :content="data['tags']" :expanded="expanded" @tag_search="close_expand"
                 v-show="data['tags'] || expanded"
                 title="Tags">
       </tag_list>

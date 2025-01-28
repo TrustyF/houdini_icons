@@ -4,7 +4,7 @@ import {inject, onMounted, watch, ref, computed, onUpdated} from "vue";
 let props = defineProps({
   content: Array, expanded: Boolean
 });
-let emits = defineEmits(["test"]);
+let emits = defineEmits(["tag_search"]);
 const search = inject("search");
 const searching = inject("searching");
 const tag_ref = ref()
@@ -12,6 +12,12 @@ const tag_ref = ref()
 const settings = inject("settings");
 
 let icon_scale = computed(() => settings.icon_scale)
+
+function add_to_search(tag){
+  search.value = `#${tag['type']} ${tag['name']}`
+  emits('tag_search')
+}
+
 
 const filtered = computed(() => props['content'].filter((elem) => {
   if (props['expanded']) return true
@@ -23,7 +29,7 @@ const filtered = computed(() => props['content'].filter((elem) => {
 <template>
   <div class="tag_list">
     <div v-for="tag in filtered" :key="tag['id']">
-      <div ref="tag_ref" class="tag" @click="search=`#${tag['type']} ${tag['name']}`">
+      <div ref="tag_ref" class="tag" @click="add_to_search(tag)">
         <h1>{{ `${tag['name']} ${tag['count'] > 1 ? tag['count'] : ''}` }}</h1>
       </div>
     </div>
