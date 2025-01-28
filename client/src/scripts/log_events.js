@@ -1,4 +1,4 @@
-import axios from "axios";
+import {axios} from "@bundled-es-modules/axios";
 import {geo_location, session_seed} from "/src/scripts/session.js";
 
 let local_url = 'http://127.0.0.1:8080'
@@ -28,7 +28,7 @@ export async function log_event(name, type, info, timestamp = Date.now()) {
 
   axios.post(url, params)
     .then(resp => {
-      // console.log('successfully logged event')
+      console.log('successfully logged event')
     })
     .catch(error => null)
 }

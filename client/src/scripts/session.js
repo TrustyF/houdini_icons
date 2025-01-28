@@ -1,4 +1,4 @@
-import axios from "axios";
+import {axios} from "@bundled-es-modules/axios";
 
 export const session_seed = Math.round(Math.random() * 10000000)
 

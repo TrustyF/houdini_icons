@@ -8,6 +8,8 @@ let props = defineProps({
   data: Object
 });
 
+let alert_content = inject('alert_content')
+
 const searching = inject("searching");
 const settings = inject("settings");
 
@@ -41,7 +43,7 @@ function close_expand() {
   if (expanded.value) expanded.value = false
 }
 
-function expand(){
+function expand() {
 
   if (!expanded.value) {
     expanded.value = true
@@ -52,14 +54,23 @@ function expand(){
 
 }
 
+function add_to_clipboard() {
+  // Copy the text inside the text field
+  let clip = `hicon:/SVGIcons.index?${props['data']['category']['name']}_${props['data']['name']['name']}.svg`
+  navigator.clipboard.writeText(clip);
+
+  // Alert the copied text
+  alert_content.value = {
+    title: 'Copied!',
+    message: 'Icon was copied to clipboard'
+  }
+}
+
 </script>
 
 <template>
-  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`">
-
-<!--    <div class="spinner-cont">-->
-<!--      <div class="spinner-border"></div>-->
-<!--    </div>-->
+  <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`"
+       @click="expand" v-click-out-side="close_expand">
 
     <div class="icon_img"/>
 
@@ -72,6 +83,15 @@ function expand(){
          v-show="!settings.icon_only || expanded">{{ data['category']['name'] }}
     </div>
 
+    <div class="icon_path_box" @click="add_to_clipboard"
+         v-show="expanded">
+      <div class="bi-copy"/>
+      <div v-show="!settings.icon_only || expanded">{{
+          `${data['category']['name']}_${data['name']['name']}.svg`
+        }}
+      </div>
+    </div>
+
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
 
       <tag_list :content="data['tags']" :expanded="expanded"
@@ -81,7 +101,7 @@ function expand(){
 
     </div>
 
-    <div class="click_zone" @click="expand" v-click-out-side="close_expand"></div>
+<!--    <div class="click_zone" :style="`cursor: ${expanded ? 'auto':'pointer'} `" @click="expand"></div>-->
   </div>
 </template>
 
@@ -103,6 +123,7 @@ function expand(){
 .icon_container_wrapper:hover {
   background-color: #1f1f1f;
 }
+
 .spinner-cont {
   position: absolute;
   width: 100%;
@@ -115,12 +136,15 @@ function expand(){
 }
 
 @keyframes fade {
-  to {opacity: 0}
+  to {
+    opacity: 0
+  }
 }
+
 .expanded {
   /*flex-grow: 10;*/
   width: 300px;
-  max-width:300px;
+  max-width: 300px;
   background-color: #1f1f1f;
 }
 
@@ -176,6 +200,28 @@ function expand(){
   width: 100%;
 }
 
+.icon_path_box {
+  z-index: 5;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  padding: 5px;
+  background-color: rgba(84, 84, 84, .5);
+  border-radius: 5px;
+
+
+  font-size: 0.8em;
+  line-height: 1;
+}
+
+.icon_path_box:hover {
+  background-color: #2c3e50;
+}
+
 .tags {
   width: 100%;
   z-index: 5;
@@ -197,12 +243,12 @@ function expand(){
 .click_zone {
   z-index: 3;
   /*outline: 1px solid red;*/
+  /*background-color: red;*/
   width: 100%;
   height: 100%;
   position: absolute;
   left: 0;
   top: 0;
-  cursor: pointer;
 }
 
 </style>
