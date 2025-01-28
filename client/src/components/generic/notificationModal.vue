@@ -42,23 +42,23 @@ watch(alert_content,(value, oldValue, onCleanup)=>{
   color: rgb(230, 230, 230);
 
   background-color: #1d2a36;
+  border: 1px solid #5f89b3;
   /*width: 50vw;*/
   padding: 10px 20px 10px 20px;
   margin-bottom: 20px;
   border-radius: 10px;
 
   left: 50%;
-  transform: translate(-50%) translate(0,20px);
+  transform: translate(-50%) translate(0,0);
   bottom: 0;
   z-index: 100;
-
-  transition: 250ms ease-in-out;
-
+  transition: 500ms;
   visibility: hidden;
   opacity: 0;
 }
 .visible {
-  transform: translate(-50%) translate(0,0);
+  transition: 250ms;
+  transform: translate(-50%) translate(0,-20px);
   visibility: visible;
   opacity: 1;
 }

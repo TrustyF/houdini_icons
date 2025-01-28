@@ -9,6 +9,14 @@
     font-weight: normal;
 }
 
+a {
+    text-decoration: none;
+}
+
+a, a:visited, a:hover, a:active {
+    color: inherit;
+}
+
 .spinner-border {
     display: inline-block;
     width: var(--bs-spinner-width);

@@ -55,11 +55,11 @@ function expand() {
 }
 
 function add_to_clipboard() {
-  // Copy the text inside the text field
   let clip = `hicon:/SVGIcons.index?${props['data']['category']['name']}_${props['data']['name']['name']}.svg`
   navigator.clipboard.writeText(clip);
 
-  // Alert the copied text
+  log_event("copied", 'int', props['data']['name']['name'])
+
   alert_content.value = {
     title: 'Copied!',
     message: 'Icon was copied to clipboard'
@@ -70,7 +70,7 @@ function add_to_clipboard() {
 
 <template>
   <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`"
-       @click="expand" v-click-out-side="close_expand">
+       v-click-out-side="close_expand">
 
     <div class="icon_img"/>
 
@@ -86,10 +86,10 @@ function add_to_clipboard() {
     <div class="icon_path_box" @click="add_to_clipboard"
          v-show="expanded">
       <div class="bi-copy"/>
-      <div v-show="!settings.icon_only || expanded">{{
-          `${data['category']['name']}_${data['name']['name']}.svg`
-        }}
-      </div>
+<!--      <div v-show="!settings.icon_only || expanded">{{-->
+<!--          `${data['category']['name']}_${data['name']['name']}.svg`-->
+<!--        }}-->
+<!--      </div>-->
     </div>
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
@@ -101,7 +101,8 @@ function add_to_clipboard() {
 
     </div>
 
-<!--    <div class="click_zone" :style="`cursor: ${expanded ? 'auto':'pointer'} `" @click="expand"></div>-->
+    <div class="click_zone" :style="`cursor: ${expanded ? 'auto':'pointer'} `" @click="expand"></div>
+
   </div>
 </template>
 
@@ -203,16 +204,23 @@ function add_to_clipboard() {
 .icon_path_box {
   z-index: 5;
   cursor: pointer;
+
   display: flex;
   flex-flow: row;
   justify-content: center;
   align-items: center;
   gap: 5px;
-  margin-top: 7px;
-  padding: 5px;
-  background-color: rgba(84, 84, 84, .5);
-  border-radius: 5px;
 
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  margin: 7px;
+  padding: 9px;
+
+  background-color: #333333;
+  border-radius: 5px;
+  color: #e6e6e6;
 
   font-size: 0.8em;
   line-height: 1;

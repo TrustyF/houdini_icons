@@ -1,9 +1,10 @@
 <script setup>
 import {RouterLink, RouterView} from 'vue-router'
-import {onMounted, provide, ref} from "vue";
+import {defineAsyncComponent, onMounted, provide, ref} from "vue";
 import {ping_user_leave} from "@/scripts/log_events.js";
 import Navbar from "@/components/generic/navbar.vue";
-import NotificationModal from "@/components/generic/notificationModal.vue";
+
+let NotificationModal = defineAsyncComponent(() => import("@/components/generic/notificationModal.vue"))
 
 let alert_content = ref({
   title: 'Test title',

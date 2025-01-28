@@ -28,7 +28,7 @@ export async function log_event(name, type, info, timestamp = Date.now()) {
 
   axios.post(url, params)
     .then(resp => {
-      console.log('successfully logged event')
+      // console.log('successfully logged event')
     })
     .catch(error => null)
 }
