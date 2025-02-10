@@ -17,9 +17,6 @@ provide("search", search)
 provide("searching", searching)
 provide("settings", settings)
 
-// console.log(data)
-// todo add a copy node name
-
 </script>
 
 <template>

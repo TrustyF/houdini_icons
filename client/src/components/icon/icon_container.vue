@@ -75,21 +75,18 @@ function add_to_clipboard() {
     <div class="icon_img"/>
 
     <div :class="`icon_name ${expanded ? 'full_name':''}`"
-         v-show="!settings.icon_only || expanded"
+         v-show="!settings.icon_only && !expanded"
          :title="data['name']['name']"> {{ data['name']['name'].replaceAll("_", ' ') }}
     </div>
 
     <div class="icon_category"
-         v-show="!settings.icon_only || expanded">{{ data['category']['name'] }}
+         v-show="!settings.icon_only && !expanded">{{ data['category']['name'] }}
     </div>
 
-    <div class="icon_path_box" @click="add_to_clipboard"
-         v-show="expanded">
+    <div class="icon_path_box" @click="add_to_clipboard" v-show="expanded">
       <div class="bi-copy"/>
-<!--      <div v-show="!settings.icon_only || expanded">{{-->
-<!--          `${data['category']['name']}_${data['name']['name']}.svg`-->
-<!--        }}-->
-<!--      </div>-->
+      <div v-show="!settings.icon_only || expanded">{{ `${data['category']['name']}_${data['name']['name']}.svg` }}
+      </div>
     </div>
 
     <div :class="`tags ${expanded ? 'expanded':''}`" v-show="((searching && !settings.icon_only) || expanded) ">
@@ -211,11 +208,7 @@ function add_to_clipboard() {
   align-items: center;
   gap: 5px;
 
-  position: absolute;
-  right: 0;
-  top: 0;
-
-  margin: 7px;
+  margin: 7px 0 0 0;
   padding: 9px;
 
   background-color: #333333;
