@@ -20,7 +20,7 @@ function matchFields(data, query) {
 
   const dat = {...data}
 
-  const matchesQuery = (value,type=null) => {
+  const matchesQuery = (value, type = null) => {
     if (typeof (value) !== "string" && query.length < 1) {
       return false;
     }
@@ -51,7 +51,7 @@ function matchFields(data, query) {
 
   dat['name']['match'] = matchesQuery(dat['name']['name']) ? 1 : 0;
   dat['category']['match'] = matchesQuery(dat['category']['name']) ? 1 : 0;
-  dat['tags'].forEach((elem) => elem['match'] = matchesQuery(elem['name'],elem['type']) ? 1 : 0)
+  dat['tags'].forEach((elem) => elem['match'] = matchesQuery(elem['name'], elem['type']) ? 1 : 0)
 
   return data;
 }
@@ -83,7 +83,7 @@ function make_search(append = true) {
   let new_data = data
 
   if (search.value.length > 0) {
-    new_data = new_data.map((entry) => matchFields(entry, search.value))
+    new_data = new_data.map((entry) => matchFields(entry, String(search.value).toLowerCase()))
     new_data = new_data.filter((entry) => hasMatch(entry))
     new_data.sort((a, b) => calc_weight(b) - calc_weight(a))
   }
@@ -151,6 +151,10 @@ onMounted(() => {
       <div class="spinner-border"></div>
     </div>
 
+    <div class="empty" :class="`${filtered_data.length < 1 ? 'empty_vis' : ''}`">
+      <h1>No results</h1>
+    </div>
+
   </div>
 
 </template>
@@ -181,8 +185,25 @@ onMounted(() => {
   transition: 250ms opacity;
 }
 
+.empty {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: 250ms opacity;
+  /*transition-delay: 500ms;*/
+}
+
+.empty_vis {
+  transition-delay: 250ms;
+  visibility: visible;
+  opacity: 1;
+}
+
 .visible {
-  transition-delay: 500ms;
+  transition-delay: 250ms;
   visibility: visible;
   opacity: 0;
 }
