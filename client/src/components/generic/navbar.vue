@@ -5,13 +5,15 @@
 <template>
   <nav>
 
-    <div style="display: flex;flex-flow: row;gap: 3px;align-items: center;margin-right: 50px;">
+    <RouterLink to="/" class="link" active-class="link_active">
       <img src="/favicon.ico" alt="home_icon" class="home_icon">
-      <h1 style="font-size: 1em;line-height: 1em;text-transform: uppercase ">Houdini Icons</h1>
-    </div>
+      <h1>Houdini Icons</h1>
+    </RouterLink>
 
-    <!--    <RouterLink class="link" to="/">Home</RouterLink>-->
-    <!--    <RouterLink class="link" to="/report">report bug</RouterLink>-->
+<!--    <RouterLink to="/scripts" class="link" active-class="link_active">-->
+<!--      <img src="/h_scripts/favicon.ico" alt="home_icon" class="home_icon">-->
+<!--      <h1>Houdini Scripts</h1>-->
+<!--    </RouterLink>-->
 
     <div class="external_links">
       <a class="github-button" href="https://github.com/TrustyF/houdini_icons" target="_blank"
@@ -20,7 +22,7 @@
         <p>GitHub</p>
       </a>
       <a class="github-button" href="https://github.com/TrustyF/houdini_icons/issues" target="_blank"
-           rel="noopener noreferrer">
+         rel="noopener noreferrer">
         <div class="bi-exclamation-circle"/>
         <p>Issue</p>
       </a>
@@ -44,14 +46,24 @@ nav {
 }
 
 .link {
-  /*outline: 1px solid red;*/
-  color: #969e9e;
+  display: flex;
+  flex-flow: row;
+  gap: 3px;
+  align-items: center;
+  margin-right: 50px;
 
-  font-size: 1em;
-  padding: 20px;
-  margin: -13px -10px -10px -10px;
-  /*text-decoration: none;*/
-  font-weight: 800;
+  h1 {
+    line-height: 1em;
+    text-transform: uppercase;
+    font-size: 1em;
+  }
+
+}
+
+.link_active {
+  h1 {
+    color: white;
+  }
 }
 
 .external_links {
@@ -78,6 +90,7 @@ nav {
   z-index: 5;
   border-radius: 10px;
 }
+
 .github-button:hover {
   background-color: #333333;
 }

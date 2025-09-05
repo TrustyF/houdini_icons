@@ -22,7 +22,7 @@ export async function log_event(name, type, info, timestamp = Date.now()) {
   }
 
   if (import.meta.env.DEV && curr_api !== local_url) {
-    console.log('dev log', params)
+    // console.log('dev log', params)
     return
   }
 
