@@ -4,16 +4,14 @@
 
 <template>
   <nav>
-
     <RouterLink to="/" class="link" active-class="link_active">
       <img src="/favicon.ico" alt="home_icon" class="home_icon">
       <h1>Houdini Icons</h1>
     </RouterLink>
 
-<!--    <RouterLink to="/scripts" class="link" active-class="link_active">-->
-<!--      <img src="/h_scripts/favicon.ico" alt="home_icon" class="home_icon">-->
-<!--      <h1>Houdini Scripts</h1>-->
-<!--    </RouterLink>-->
+    <RouterLink to="/help" class="link" active-class="link_active">
+      <h2>How to use</h2>
+    </RouterLink>
 
     <div class="external_links">
       <a class="github-button" href="https://github.com/TrustyF/houdini_icons" target="_blank"
@@ -28,6 +26,7 @@
       </a>
     </div>
   </nav>
+
 </template>
 
 <style scoped>
@@ -58,16 +57,19 @@ nav {
     font-size: 1em;
   }
 
-}
-
-.link_active {
-  h1 {
-    color: white;
+  h2 {
+    line-height: 1em;
+    font-size: 1em;
   }
 }
 
+.link_active {
+  color: white;
+}
+
 .external_links {
-  position: absolute;
+  /*position: absolute;*/
+  margin-left: auto;
   right: 0;
   top: 0;
   display: flex;

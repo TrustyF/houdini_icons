@@ -66,11 +66,38 @@ function add_to_clipboard() {
   }
 }
 
+function download_svg(data) {
+  let file = data['name']['name']
+  let category = data['category']['name']
+  let path
+
+  if (category.length < 1 || category === 'icons') path = `/icons/${file}.svg`
+  else path = `/icons/${category}/${file}.svg`
+
+  const a = document.createElement("a");
+  a.href = path;
+  a.download = file;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.dispatchEvent(new MouseEvent("click", {
+    bubbles: false,
+    cancelable: true,
+    composed: false
+  }));
+  document.body.removeChild(a);
+
+  log_event("downloaded_svg", 'int', props['data']['name']['name'])
+}
+
 </script>
 
 <template>
   <div ref="master_icon" :class="`icon_container_wrapper ${expanded ? 'expanded':''}`"
        v-click-out-side="close_expand">
+
+    <div class="icon_download" @click="download_svg(data)" v-show="expanded">
+      <div class="bi-download"/>
+    </div>
 
     <div class="icon_img"/>
 
@@ -153,10 +180,37 @@ function add_to_clipboard() {
   background-image: v-bind(ico_atlas);
   background-position: v-bind(ico_atlas_pos);
   background-repeat: no-repeat;
-
-
   width: calc(100px * v-bind(icon_scale));
   aspect-ratio: 1;
+}
+
+.icon_download {
+  z-index: 10;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+
+  margin: 5px;
+  padding: 8px;
+
+  background-color: #2b2b2b;
+  border-radius: 5px;
+  color: #8d8d8d;
+
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.icon_download:hover {
+  background-color: #2c3e50;
+  color: #e6e6e6;
 }
 
 .icon_name {

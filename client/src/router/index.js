@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import {log_event} from "@/scripts/log_events.js";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,12 +11,22 @@ const router = createRouter({
 
     },
     {
-      path: '/report',
-      name: 'report',
-      component: () => import('../views/ReportView.vue'),
+      path: '/help',
+      name: 'help',
+      component: () => import('../views/HelpView.vue'),
 
     },
+    // {
+    //   path: '/about',
+    //   name: 'about',
+    //   component: () => import('../views/AboutView.vue'),
+    //
+    // },
   ],
+})
+
+router.afterEach((to, from, next) => {
+  log_event("page nav", 'nav', to.name)
 })
 
 export default router

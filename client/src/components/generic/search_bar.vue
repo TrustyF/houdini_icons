@@ -29,7 +29,7 @@ const searching = inject("searching");
   z-index: 5;
   border-radius: 5px;
 
-  box-shadow: 3px 3px 5px black;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.25);
 }
 
 .loader {
