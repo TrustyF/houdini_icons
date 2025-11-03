@@ -26,7 +26,7 @@ const router = createRouter({
 })
 
 router.afterEach((to, from, next) => {
-  log_event("page nav", 'nav', to.name)
+  if (to.name !== 'home') log_event("page_nav", 'nav', to.name)
 })
 
 export default router
