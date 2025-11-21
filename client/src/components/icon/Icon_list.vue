@@ -2,7 +2,7 @@
 import data from "@/assets/database.json";
 import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch, shallowRef} from "vue";
 import {log_event} from "@/scripts/log_events.js";
-import Icon_container from "@/components/icon/icon_container.vue";
+import Icon_container from "@/components/icon/Icon_container.vue";
 
 let search_timeout;
 const filtered_data = shallowRef([])

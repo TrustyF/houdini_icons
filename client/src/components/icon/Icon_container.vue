@@ -1,8 +1,10 @@
 <script setup>
-import {inject, onMounted, watch, ref, computed, provide, onUpdated} from "vue";
+import {computed, inject, ref} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import {clickOutSide as vClickOutSide} from '@mahdikhashan/vue3-click-outside'
 import {log_event} from "@/scripts/log_events.js";
+import Icon_image from "@/components/icon/Icon_image.vue";
+import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
 
 let props = defineProps({
   data: Object
@@ -16,25 +18,6 @@ const settings = inject("settings");
 let icon_scale = computed(() => settings.icon_scale)
 let icon_size = computed(() => `${120 * icon_scale.value}px`)
 let image_size = computed(() => `${100 * icon_scale.value}px`)
-
-let ico_atlas_pos = computed(() => {
-  let id = props['data']['id'] - 1
-
-  let size = -100 * icon_scale.value
-  let padding = 2.5 * icon_scale.value
-  let y = Math.floor(id / 10) % 10
-  let x = id % 10
-
-  return `${(x * size) - padding}px ${(y * size) - padding}px`
-})
-let ico_atlas = computed(() => {
-  let id = props['data']['id'] - 1
-
-  let cus_id = Math.floor(id / 100)
-  let str_url = `/atlas/atlas_${cus_id}.webp`
-  // let url = new URL(str_url, import.meta.url).href
-  return `url(${str_url})`
-})
 
 let master_icon = ref()
 let expanded = ref(false)
@@ -99,7 +82,7 @@ function download_svg(data) {
       <div class="bi-download"/>
     </div>
 
-    <div class="icon_img"/>
+    <icon_image :icon_id="props.data.id"/>
 
     <div :class="`icon_name ${expanded ? 'full_name':''}`"
          v-show="!settings.icon_only && !expanded"
@@ -123,6 +106,12 @@ function download_svg(data) {
                 title="Tags">
       </tag_list>
 
+    </div>
+
+    <div class="node_prev_list" v-show="expanded">
+      <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="0"/>
+      <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="1"/>
+      <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="2"/>
     </div>
 
     <div class="click_zone" :style="`cursor: ${expanded ? 'auto':'pointer'} `" @click="expand"></div>
@@ -171,17 +160,6 @@ function download_svg(data) {
   width: 300px;
   max-width: 300px;
   background-color: #1f1f1f;
-}
-
-.icon_img {
-  max-width: v-bind(icon_size);
-
-  background-size: calc(1000px * v-bind(icon_scale));
-  background-image: v-bind(ico_atlas);
-  background-position: v-bind(ico_atlas_pos);
-  background-repeat: no-repeat;
-  width: calc(100px * v-bind(icon_scale));
-  aspect-ratio: 1;
 }
 
 .icon_download {
@@ -292,6 +270,18 @@ function download_svg(data) {
   justify-content: flex-start;
 
   gap: 3px;
+  margin-top: 10px;
+}
+
+.node_prev_list {
+  /*width: 100%;*/
+  z-index: 5;
+  display: flex;
+  flex-flow: column nowrap;
+
+  /*justify-content: space-around;*/
+
+  gap: 5px;
   margin-top: 10px;
 }
 
