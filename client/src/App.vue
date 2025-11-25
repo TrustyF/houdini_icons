@@ -1,7 +1,6 @@
 <script setup>
-import {RouterLink, RouterView} from 'vue-router'
-import {defineAsyncComponent, onMounted, provide, ref} from "vue";
-import {ping_user_leave} from "@/scripts/log_events.js";
+import {RouterView} from 'vue-router'
+import {defineAsyncComponent, provide, ref} from "vue";
 import Navbar from "@/components/generic/navbar.vue";
 
 let NotificationModal = defineAsyncComponent(() => import("@/components/generic/notificationModal.vue"))
@@ -12,13 +11,11 @@ let alert_content = ref({
 })
 provide('alert_content', alert_content)
 
-onMounted(() => {
-  ping_user_leave()
-  setInterval(() => ping_user_leave(), 5000)
-})
 </script>
 
 <template>
+  <img src="/atlas/atlas_0.webp" fetchpriority="high" style="display: none" alt=""/>
+  <img src="/atlas/atlas_1.webp" fetchpriority="high" style="display: none" alt=""/>
   <div class="home_wrapper">
     <notification-modal/>
     <navbar/>

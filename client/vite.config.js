@@ -7,6 +7,9 @@ import compression from 'vite-plugin-compression';
 
 // https://vite.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    exclude: ["rrweb"],
+  },
   plugins: [
     vue(),
     compression(),
@@ -21,6 +24,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  manualChunks: {
-  }
+  manualChunks: {}
 })

@@ -1,19 +1,16 @@
 <script setup>
 import data from "@/assets/database.json";
 import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch, shallowRef} from "vue";
-import {log_event} from "@/scripts/log_events.js";
 import Icon_container from "@/components/icon/Icon_container.vue";
+import Virtual_list from "@/components/generic/virtual_list.vue";
 
 let search_timeout;
-const filtered_data = shallowRef([])
+const filtered_data = ref([])
 
 const search = inject("search");
-const searching = inject("searching");
-const icon_list_ref = ref()
 
-let ico_per_page = 51
-let page = 1
-let added_icons = 0
+const list_height = ref(100)
+const list_width = ref(100)
 
 function matchFields(data, query) {
   // console.log('query', query)
@@ -88,36 +85,13 @@ function make_search(append = true) {
     new_data.sort((a, b) => calc_weight(b) - calc_weight(a))
   }
 
-  if (append) {
-    let pushed = new_data.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
-    filtered_data.value = [...filtered_data.value, ...pushed]
-    added_icons = pushed.length
-  } else {
-    page = 1
-    filtered_data.value = [...new_data.slice(0, page * ico_per_page)]
-    added_icons = ico_per_page
-  }
-
-  setTimeout(() => {
-    searching.value = search.value.length > 0
-    check_list_size()
-  }, 5)
+  filtered_data.value = [...new_data]
 }
 
 function check_list_size() {
-  const padding = 2000
-
-  if (!icon_list_ref.value) return
-
-  const rect = icon_list_ref.value.getBoundingClientRect();
   const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-
-  // Check if the bottom of the element is within the visible viewport
-  if (rect.bottom > -padding && rect.bottom <= windowHeight + padding && added_icons > 0) {
-    page += 1
-    make_search()
-    setTimeout(() => check_list_size(), 500)
-  }
+  list_height.value = windowHeight - 120
+  console.log(list_height.value)
 }
 
 watch(search, (oldV, newV) => {
@@ -127,42 +101,37 @@ watch(search, (oldV, newV) => {
     requestAnimationFrame(() => {
       make_search(false)
     })
-    if (oldV !== newV && search.value.length > 0) log_event('search', 'int', search.value)
   }, 500); // Delay the operation
 
 })
 
 onMounted(() => {
   make_search()
-  addEventListener("scroll", check_list_size)
+  addEventListener("resize", check_list_size)
   check_list_size()
 })
 
 </script>
 <template>
+  <virtual_list
+    :nodes="filtered_data"
+    :rowHeight="200"
+    :columnsPerRow="10"
+    :viewportHeight="400"
+  />
 
-  <div class="icons_list" ref="icon_list_ref">
+  <!--  <div class="icons_list" ref="icon_list_ref">-->
 
-    <lazy-component v-for="icon in filtered_data" :key="icon['id']" :threshold="0.1" rootMargin="0px 0px 2000px 0px">
-      <icon_container :data="icon"/>
-    </lazy-component>
+  <!--      <icon_container :data="icon"/>-->
 
-    <div :class="`list-spinner ${searching ? 'visible':''}`">
-      <div class="spinner-border"></div>
-    </div>
-
-    <div class="empty" :class="`${filtered_data.length < 1 ? 'empty_vis' : ''}`">
-      <h1>No results</h1>
-    </div>
-
-  </div>
+  <!--  </div>-->
 
 </template>
 <style scoped>
 
 .icons_list {
-  content-visibility: auto;
-  contain-intrinsic-size: 150px;
+  /*content-visibility: auto;*/
+  /*contain-intrinsic-size: 150px;*/
 
   margin-top: 20px;
   margin-bottom: 300px;

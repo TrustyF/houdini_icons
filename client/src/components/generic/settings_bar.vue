@@ -1,6 +1,5 @@
 <script setup>
 import {inject, onMounted, watch, ref, computed} from "vue";
-import {log_event} from "@/scripts/log_events.js";
 
 let props = defineProps({
   test: {
@@ -9,28 +8,6 @@ let props = defineProps({
   },
 });
 const settings = inject("settings");
-
-let icon_only_timeout
-let icon_scale_timeout
-
-watch(() => settings.icon_scale, (value, oldValue) => {
-  if (value === oldValue) return
-
-  const time = Date.now()
-  clearTimeout(icon_scale_timeout)
-  icon_scale_timeout = setTimeout(() => {
-    log_event("icon scale", 'int', value, time)
-  }, 2000)
-})
-watch(() => settings.icon_only, (value, oldValue) => {
-  if (value === oldValue) return
-
-  const time = Date.now()
-  clearTimeout(icon_only_timeout)
-  icon_only_timeout = setTimeout(() => {
-    log_event("icon only", 'int', value, time)
-  }, 2000)
-})
 
 </script>
 

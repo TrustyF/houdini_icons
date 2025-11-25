@@ -2,7 +2,6 @@
 import {computed, inject, ref} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import {clickOutSide as vClickOutSide} from '@mahdikhashan/vue3-click-outside'
-import {log_event} from "@/scripts/log_events.js";
 import Icon_image from "@/components/icon/Icon_image.vue";
 import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
 
@@ -30,7 +29,6 @@ function expand() {
 
   if (!expanded.value) {
     expanded.value = true
-    log_event('expanded', 'int', props['data']['image'])
   } else {
     expanded.value = false
   }
@@ -40,8 +38,6 @@ function expand() {
 function add_to_clipboard() {
   let clip = `hicon:/SVGIcons.index?${props['data']['category']['name']}_${props['data']['name']['name']}.svg`
   navigator.clipboard.writeText(clip);
-
-  log_event("copied", 'int', props['data']['name']['name'])
 
   alert_content.value = {
     title: 'Copied!',
@@ -68,8 +64,6 @@ function download_svg(data) {
     composed: false
   }));
   document.body.removeChild(a);
-
-  log_event("downloaded_svg", 'int', props['data']['name']['name'])
 }
 
 </script>
