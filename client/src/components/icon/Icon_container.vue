@@ -268,12 +268,9 @@ function download_svg(data) {
 }
 
 .node_prev_list {
-  /*width: 100%;*/
   z-index: 5;
   display: flex;
-  flex-flow: column nowrap;
-
-  /*justify-content: space-around;*/
+  flex-flow: row nowrap;
 
   gap: 5px;
   margin-top: 10px;

@@ -12,5 +12,5 @@ app.use(LazyComponent)
 app.use(router)
 app.mount('#app')
 
-// rrweb_plugin.start()
-// preload(router).then()
+rrweb_plugin.start()
+preload(router).then()

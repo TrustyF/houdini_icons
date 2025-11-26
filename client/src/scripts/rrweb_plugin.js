@@ -1,4 +1,4 @@
-import {record} from "rrweb";
+import {pack, record} from "rrweb";
 import {axios} from "@bundled-es-modules/axios";
 import {geo_location, get_session_seed} from "@/scripts/session.js";
 
@@ -8,7 +8,7 @@ let sendInterval = null;
 
 let local_url = 'http://127.0.0.1:5000'
 let server_url = 'https://analytics-trustyfox.pythonanywhere.com'
-let curr_api = local_url
+let curr_api = server_url
 let project = 'houdini_icons'
 
 let url = `${curr_api}/event/add`
@@ -33,25 +33,14 @@ export default {
   start() {
     if (stopRecording) return;
 
-    console.log('start')
-
     stopRecording = record({
       emit(event) {
-        events.push(event);
+        // if ([2,3].includes(event.type)) {
+          events.push(JSON.stringify(event));
+        // }
       },
-      hooks: {},
+      inlineStylesheet: false,
       slimDOMOptions: 'all',
-      recordCanvas:true,
-      inlineStylesheet:false,
-      inlineImages:false,
-      mutation: {
-        maskAllInputs: false,
-        blockClass: 'rr-block',
-        blockSelector: '.ignore',
-        // MOST IMPORTANT:
-        // batch mutations instead of sending 1 per node
-        collectBatch: true
-      },
       sampling: {
         mousemove: 100,
         mouseInteraction: false,
@@ -60,10 +49,10 @@ export default {
       },
     });
 
-    // batch send every 5 seconds
     sendInterval = setInterval(() => {
       if (events.length === 0) return;
       send_batch(events)
+      console.log(events.length)
       events = [];
     }, 2500);
   },

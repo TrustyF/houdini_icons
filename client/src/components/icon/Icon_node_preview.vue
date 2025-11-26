@@ -17,7 +17,7 @@ let bg_col = computed(() => bg_colors[props.bg_color])
 <template>
   <div class="icon_node_prev_wrapper">
     <img class="node_img" src="/web_icons/node.webp" alt="node">
-    <icon_image class="node_icon" :icon_id="icon_id"/>
+    <icon_image class="node_icon" :icon_id="icon_id" :scale_override="1"/>
     <div class="icon_node_prev_bg"/>
   </div>
 </template>
@@ -28,6 +28,8 @@ let bg_col = computed(() => bg_colors[props.bg_color])
   width: 155px;
   position: relative;
   display: flex;
+  margin: -10px -35px -10px -35px;
+  transform: scale(50%);
 }
 
 .node_img {
