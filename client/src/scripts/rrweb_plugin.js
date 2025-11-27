@@ -39,11 +39,9 @@ export default {
           events.push(JSON.stringify(event));
         // }
       },
-      inlineStylesheet: false,
       slimDOMOptions: 'all',
       sampling: {
-        mousemove: 100,
-        mouseInteraction: false,
+        mousemove: 50,
         scroll: 150,
         input: 'last',
       },
