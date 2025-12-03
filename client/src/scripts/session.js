@@ -9,13 +9,7 @@ export const get_session_seed = () => {
   }
   return sid;
 }
-//
-// let session_seed = null
-//
-// export const get_session_seed = () => {
-//   if (!session_seed) session_seed = crypto.randomUUID()
-//   return session_seed
-// }
+
 let server_url = ' https://analytics-trustyfox.pythonanywhere.com'
 
 const get_geo = async () => {

@@ -13,7 +13,7 @@ const settings = inject("settings");
 
 let icon_scale = computed(() => settings.icon_scale)
 
-function add_to_search(tag){
+function add_to_search(tag) {
   search.value = `#${tag['type']} ${tag['name']}`
   emits('tag_search')
 }
@@ -24,13 +24,22 @@ const filtered = computed(() => props['content'].filter((elem) => {
   return elem['match'] === 1
 }))
 
+function get_color_from_type(type) {
+  if (type === 'tag') return 'rgb(102,41,41)'
+  if (type === 'shape') return 'rgb(102,95,41)'
+  if (type === 'symbol') return 'rgb(41,97,102)'
+  if (type === 'color') return 'rgb(86,41,102)'
+}
+
 </script>
 
 <template>
   <div class="tag_list">
     <div v-for="tag in filtered" :key="tag['id']">
-      <div ref="tag_ref" class="tag" @click="add_to_search(tag)">
-        <h1>{{ `${tag['name']} ${tag['count'] > 1 ? tag['count'] : ''}` }}</h1>
+      <div ref="tag_ref" class="tag"
+           :style="`background-color:${get_color_from_type(tag['type'])};border-color:${get_color_from_type(tag['type'])}`"
+           @click="add_to_search(tag)">
+        <h1>{{ `${tag['name']}` }}</h1>
       </div>
     </div>
   </div>
@@ -49,6 +58,7 @@ const filtered = computed(() => props['content'].filter((elem) => {
 }
 
 .tag {
+  color: #cccccc;
   cursor: pointer;
   position: relative;
   display: flex;
@@ -56,14 +66,15 @@ const filtered = computed(() => props['content'].filter((elem) => {
   gap: 5px;
   font-size: 0.7em;
   background-color: #282828;
-  padding: 2px 5px 2px 5px;
+  padding: 3px 6px 3px 6px;
   border-radius: 5px;
+  /*border: 1px solid;*/
   /*width: 100%;*/
   /*overflow: hidden;*/
 }
 
-.tag:hover {
-  background-color: #2c3e50;
+.tag:hover  {
+  background-color: #2c3e50 !important;
 }
 
 h1 {

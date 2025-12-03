@@ -35,13 +35,9 @@ export default {
 
     stopRecording = record({
       emit(event) {
-        // if ([2,3].includes(event.type)) {
           events.push(JSON.stringify(event));
-        // }
       },
-      slimDOMOptions: 'all',
       sampling: {
-        mousemove: 50,
         scroll: 150,
         input: 'last',
       },
@@ -50,7 +46,7 @@ export default {
     sendInterval = setInterval(() => {
       if (events.length === 0) return;
       send_batch(events)
-      console.log(events.length)
+      // console.log(events.length)
       events = [];
     }, 2500);
   },
