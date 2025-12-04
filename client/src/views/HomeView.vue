@@ -5,17 +5,6 @@ const search_bar = defineAsyncComponent(() => import("@/components/generic/searc
 const settings_bar = defineAsyncComponent(() => import("@/components/generic/settings_bar.vue"))
 const icon_list = defineAsyncComponent(() => import("@/components/icon/Icon_list.vue"))
 
-const search = ref("")
-const searching = ref(false)
-
-const settings = reactive({
-  icon_only: false,
-  icon_scale: 1,
-})
-
-provide("search", search)
-provide("searching", searching)
-provide("settings", settings)
 
 </script>
 

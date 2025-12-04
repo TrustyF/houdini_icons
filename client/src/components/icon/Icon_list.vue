@@ -9,15 +9,13 @@ const filtered_data = shallowRef([])
 
 const search = inject("search");
 const searching = inject("searching");
+const icon_modal_vis = inject("icon_modal_vis");
 const icon_list_ref = ref()
 
 let ico_per_page = 51
 let page = 1
 let added_icons = 0
 
-const icon_modal_pos = ref({'x': 0, 'y': 0})
-const icon_modal_vis = ref(false)
-const icon_modal_id = ref(1)
 
 function matchFields(data, query) {
   // console.log('query', query)
@@ -48,6 +46,11 @@ function matchFields(data, query) {
     if (query.startsWith("#symbol ")) {
       const strictQuery = query.slice(8);
       return value === strictQuery && type === 'symbol';
+    }
+
+    if (query.startsWith("#shape ")) {
+      const strictQuery = query.slice(7);
+      return value === strictQuery && type === 'shape';
     }
 
     return value.includes(query)
@@ -124,22 +127,9 @@ function check_list_size() {
   }
 }
 
-function icon_select_callback(event) {
-  const parent = icon_list_ref.value.getBoundingClientRect()
-  icon_modal_pos.value = {
-    'x': (event.position.x - parent.left) + 'px',
-    'y': (event.position.y - parent.top) + 'px',
-  }
-  icon_modal_id.value = event.icon_id
-  icon_modal_vis.value = true
-}
-
-function icon_modal_close(){
-  icon_modal_vis.value = false
-}
 
 watch(search, (oldV, newV) => {
-
+  icon_modal_vis.value = false
   clearTimeout(search_timeout);
   search_timeout = setTimeout(() => {
     requestAnimationFrame(() => {
@@ -157,19 +147,14 @@ onMounted(() => {
 
 </script>
 <template>
-  <div class="icons_list" ref="icon_list_ref">
 
-    <icon_modal v-if="filtered_data.length > 0"
-                :position="icon_modal_pos"
-                :visibility="icon_modal_vis"
-                :data="filtered_data[icon_modal_id-1]"
-                @close="icon_modal_close"
-    />
+
+  <div class="icons_list" ref="icon_list_ref">
 
     <lazy-component class="icon_list_elem"
                     v-for="icon in filtered_data"
                     :key="icon['id']" :threshold="0.1" rootMargin="0px 0px 2000px 0px">
-      <icon_container :data="icon" @selected="icon_select_callback"/>
+      <icon_container :data="icon"/>
     </lazy-component>
 
     <div :class="`list-spinner ${searching ? 'visible':''}`">

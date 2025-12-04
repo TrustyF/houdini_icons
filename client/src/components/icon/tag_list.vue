@@ -26,7 +26,7 @@ const filtered = computed(() => props['content'].filter((elem) => {
 
 function get_color_from_type(type) {
   if (type === 'tag') return 'rgb(102,41,41)'
-  if (type === 'shape') return 'rgb(102,95,41)'
+  if (type === 'shape') return 'rgb(54,102,41)'
   if (type === 'symbol') return 'rgb(41,97,102)'
   if (type === 'color') return 'rgb(86,41,102)'
 }
@@ -37,7 +37,7 @@ function get_color_from_type(type) {
   <div class="tag_list">
     <div v-for="tag in filtered" :key="tag['id']">
       <div ref="tag_ref" class="tag"
-           :style="`background-color:${get_color_from_type(tag['type'])};border-color:${get_color_from_type(tag['type'])}`"
+           :style="`background-color:${get_color_from_type(tag['type'])};`"
            @click="add_to_search(tag)">
         <h1>{{ `${tag['name']}` }}</h1>
       </div>
@@ -50,30 +50,33 @@ function get_color_from_type(type) {
 .tag_list {
   display: flex;
   flex-flow: row wrap;
-  justify-items: flex-start;
-  gap: 2px;
+  justify-content: inherit;
+  gap: 4px;
   margin: 0;
   width: 100%;
   overflow: hidden;
 }
 
 .tag {
-  color: #cccccc;
+  color: #d9d9d9;
   cursor: pointer;
   position: relative;
   display: flex;
   flex-flow: row;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  font-size: 0.7em;
+  font-size: 0.8em;
+  line-height: normal;
   background-color: #282828;
   padding: 3px 6px 3px 6px;
   border-radius: 5px;
-  /*border: 1px solid;*/
+  /*border: inset 2px;*/
   /*width: 100%;*/
   /*overflow: hidden;*/
 }
 
-.tag:hover  {
+.tag:hover {
   background-color: #2c3e50 !important;
 }
 
@@ -83,6 +86,7 @@ h1 {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  transform: translateY(-1px);
 }
 
 </style>

@@ -57,17 +57,36 @@ function close() {
   if (props.visibility === true) emits('close')
 }
 
+const screen_flip = computed(() => {
+  if (window.innerWidth > 500) return props.position.x > window.innerWidth * 0.7
+  else return props.position.x > window.innerWidth / 2
+})
+
+const position_style = computed(() => {
+  if (screen_flip.value) return `
+  right:${props.position['xf'] - 10}px;
+  top:${props.position['y'] - 10}px;
+  `
+  return `
+  left:${props.position['x'] - 10}px;
+  top:${props.position['y'] - 10}px;
+  `
+})
+
 </script>
 
 <template>
-  <div class="icon_modal_wrapper" v-show="props.visibility"
-       :style="`left:${position['x']};top:${position['y']};`">
+  <div class="icon_modal_wrapper"
+       v-show="props.visibility" v-if="props.data"
+       :style="position_style">
 
-    <div class="icon_download" @click="download_svg(data)">
+    <div class="icon_download" :style="screen_flip ? 'left:0;right:auto' : ''"
+         @click="download_svg(data)">
       <div class="bi-download"/>
     </div>
 
-    <icon_image :icon_id="props.data.id" @click="close"/>
+    <icon_image :style="screen_flip ? 'margin-left: auto;' : ''"
+                :icon_id="props.data.id" :scale_min="1" @click="close"/>
 
     <div class="icon_name full_name"
          :title="data['name']['name']"> {{ data['name']['name'].replaceAll("_", ' ') }}
@@ -81,18 +100,18 @@ function close() {
       </div>
     </div>
 
-    <div class="tags">
-      <tag_list :content="data['tags']"
-                v-if="data['tags'].length > 0"
-                title="Tags">
-      </tag_list>
-    </div>
+    <tag_list class="tags"
+              :content="data['tags']"
+              v-show="data['tags']"
+              :expanded="true"
+              title="Tags"/>
 
     <div class="node_prev_list">
       <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="0"/>
       <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="1"/>
       <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="2"/>
     </div>
+
   </div>
 </template>
 
@@ -105,11 +124,14 @@ function close() {
   justify-items: flex-start;
   align-items: flex-start;
 
-  padding: calc(10px * v-bind(icon_scale));
+  width: auto;
+
+  padding: 20px;
+  outline: #262626 3px solid;
   border-radius: 5px;
   user-select: none;
-  background-color: #1f1f1f;
-  box-shadow: black 2px 2px 10px;
+  background: linear-gradient(to bottom, #1f1f1f 50%, #304040 120%);
+  box-shadow: #0d0d0d 2px 2px 20px, #0d0d0d 2px 2px 20px;
 }
 
 .icon_download {
@@ -144,7 +166,7 @@ function close() {
 .icon_name {
   /*outline: 1px solid orange;*/
   color: white;
-  font-size: 0.8em;
+  font-size: 1em;
   /*text-align: center;*/
 
   align-items: center;
@@ -154,7 +176,6 @@ function close() {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 100%;
 }
 
 .full_name {
@@ -167,7 +188,7 @@ function close() {
 .icon_category {
   /*outline: 1px solid orange;*/
   color: rgba(84, 84, 84, 1);
-  font-size: 0.6em;
+  font-size: 0.8em;
   font-weight: 1000;
   line-height: 1;
   /*text-align: center;*/
@@ -177,7 +198,6 @@ function close() {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 100%;
 }
 
 .icon_path_box {
@@ -190,7 +210,7 @@ function close() {
   align-items: center;
   gap: 5px;
 
-  margin: 7px 0 0 0;
+  margin: 15px 0 0 0;
   padding: 9px;
 
   background-color: #333333;
@@ -206,30 +226,19 @@ function close() {
 }
 
 .tags {
-  width: 100%;
+  /*width: 100%;*/
+  max-width: 300px;
   z-index: 5;
-  /*outline: 1px solid blue;*/
-  /*max-height: 100px;*/
-  /*overflow-y: scroll;*/
-  display: flex;
-  flex-flow: row wrap;
 
-  justify-items: flex-start;
-  align-items: flex-start;
-  align-content: flex-start;
-  justify-content: flex-start;
-
-  gap: 3px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .node_prev_list {
   z-index: 5;
   display: flex;
-  flex-flow: row nowrap;
-
+  flex-flow: row wrap;
   gap: 5px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .click_zone {

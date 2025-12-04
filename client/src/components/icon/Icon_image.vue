@@ -2,12 +2,16 @@
 import {computed, inject, defineProps} from "vue";
 
 let props = defineProps({
-  icon_id: Number, scale_override: Number
+  icon_id: Number, scale_override: Number, scale_min: Number
 });
 
 const settings = inject("settings");
 
-let icon_scale = computed(() => props.scale_override ? props.scale_override : settings.icon_scale)
+let icon_scale = computed(() => {
+  if (props.scale_override) return props.scale_override
+  if (props.scale_min) return Math.max(props.scale_min, settings.icon_scale)
+  return settings.icon_scale
+})
 let icon_size = computed(() => `${120 * icon_scale.value}px`)
 let image_size = computed(() => `${100 * icon_scale.value}px`)
 
