@@ -45,10 +45,10 @@ export default {
 
     sendInterval = setInterval(() => {
       if (events.length === 0) return;
-      send_batch(events)
-      // console.log(events.length)
+      send_batch(events).then()
+      console.log(events.length)
       events = [];
-    }, 2500);
+    }, 10000);
   },
 
   stop() {

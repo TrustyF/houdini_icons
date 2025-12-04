@@ -25,10 +25,12 @@ const filtered = computed(() => props['content'].filter((elem) => {
 }))
 
 function get_color_from_type(type) {
-  if (type === 'tag') return 'rgb(102,41,41)'
-  if (type === 'shape') return 'rgb(54,102,41)'
-  if (type === 'symbol') return 'rgb(41,97,102)'
-  if (type === 'color') return 'rgb(86,41,102)'
+  const sat = 45
+  const lig = 20
+  if (type === 'tag') return `hsl(0,${sat}%,${lig}%)`
+  if (type === 'shape') return `hsl(107,${sat}%,${lig}%)`
+  if (type === 'symbol') return `hsl(185,${sat}%,${lig}%)`
+  if (type === 'color') return `hsl(284,${sat}%,${lig}%)`
 }
 
 </script>
@@ -77,7 +79,7 @@ function get_color_from_type(type) {
 }
 
 .tag:hover {
-  background-color: #2c3e50 !important;
+  background-color: #2a4766 !important;
 }
 
 h1 {

@@ -1,7 +1,6 @@
 <script setup>
-import {computed, inject, ref} from "vue";
+import {computed, inject, nextTick, ref} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
-import {clickOutSide as vClickOutSide} from '@mahdikhashan/vue3-click-outside'
 import Icon_image from "@/components/icon/Icon_image.vue";
 import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
 
@@ -53,9 +52,10 @@ function download_svg(data) {
   document.body.removeChild(a);
 }
 
-function close() {
+function close(e) {
   if (props.visibility === true) emits('close')
 }
+
 
 const screen_flip = computed(() => {
   if (window.innerWidth > 500) return props.position.x > window.innerWidth * 0.7
@@ -63,13 +63,14 @@ const screen_flip = computed(() => {
 })
 
 const position_style = computed(() => {
+  const margin = 13
   if (screen_flip.value) return `
-  right:${props.position['xf'] - 10}px;
-  top:${props.position['y'] - 10}px;
+  right:${props.position['xf'] - margin}px;
+  top:${props.position['y'] - margin}px;
   `
   return `
-  left:${props.position['x'] - 10}px;
-  top:${props.position['y'] - 10}px;
+  left:${props.position['x'] - margin}px;
+  top:${props.position['y'] - margin}px;
   `
 })
 
@@ -77,15 +78,17 @@ const position_style = computed(() => {
 
 <template>
   <div class="icon_modal_wrapper"
-       v-show="props.visibility" v-if="props.data"
+       v-show="props.visibility" v-if="props.data" v-click-outside="close"
        :style="position_style">
 
-    <div class="icon_download" :style="screen_flip ? 'left:0;right:auto' : ''"
-         @click="download_svg(data)">
-      <div class="bi-download"/>
+    <div class="sidebar" :style="screen_flip ? 'left:0;right:auto' : ''">
+
+      <div class="bi-x sidebar_button" @click="close"/>
+      <div class="bi-download sidebar_button" @click="download_svg(data)"/>
+
     </div>
 
-    <icon_image :style="screen_flip ? 'margin-left: auto;' : ''"
+    <icon_image :style="screen_flip ? 'margin-left: auto;' : '' + 'cursor:pointer'"
                 :icon_id="props.data.id" :scale_min="1" @click="close"/>
 
     <div class="icon_name full_name"
@@ -127,38 +130,38 @@ const position_style = computed(() => {
   width: auto;
 
   padding: 20px;
-  outline: #262626 3px solid;
+  border: #262626 3px solid;
   border-radius: 5px;
   user-select: none;
-  background: linear-gradient(to bottom, #1f1f1f 50%, #304040 120%);
-  box-shadow: #0d0d0d 2px 2px 20px, #0d0d0d 2px 2px 20px;
+  /*background-color: #1f1f1f;*/
+  background: linear-gradient(to bottom, #1f1f1f 25%, #1d2626 150%);
+  box-shadow: rgba(0, 0, 0, 0.9) 0 0 30px, rgba(0, 0, 0, 0.8) 0 0 50px;
 }
 
-.icon_download {
+.sidebar {
   z-index: 10;
   cursor: pointer;
   position: absolute;
   right: 0;
   top: 0;
-
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   justify-content: center;
   align-items: center;
-  gap: 5px;
+  /*gap: 5px;*/
+}
 
+.sidebar_button {
+  position: relative;
   margin: 5px;
   padding: 10px;
-
-  /*background-color: #1a1a1a;*/
   border-radius: 5px;
   color: #404040;
-
   font-size: 1.2em;
   line-height: 1;
 }
 
-.icon_download:hover {
+.sidebar_button:hover {
   background-color: #2c3e50;
   color: #e6e6e6;
 }
@@ -210,19 +213,22 @@ const position_style = computed(() => {
   align-items: center;
   gap: 5px;
 
-  margin: 15px 0 0 0;
-  padding: 9px;
+  margin: 20px 0 0 0;
+  padding: 15px;
+  width: 100%;
 
-  background-color: #333333;
+  background-color: #262626;
+  outline: 2px solid #666666;
   border-radius: 5px;
   color: #e6e6e6;
 
-  font-size: 0.8em;
+  font-size: 0.9em;
   line-height: 1;
 }
 
 .icon_path_box:hover {
   background-color: #2c3e50;
+  outline: 2px solid #486582;
 }
 
 .tags {
@@ -230,7 +236,7 @@ const position_style = computed(() => {
   max-width: 300px;
   z-index: 5;
 
-  margin-top: 15px;
+  margin-top: 25px;
 }
 
 .node_prev_list {
