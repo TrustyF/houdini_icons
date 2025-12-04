@@ -90,7 +90,7 @@ function make_search(append = true) {
   let new_data = data
 
   if (search.value.length > 0) {
-    new_data = new_data.map((entry) => matchFields(entry, String(search.value).toLowerCase()))
+    new_data = new_data.map((entry) => matchFields(entry, String(search.value).trim().toLowerCase()))
     new_data = new_data.filter((entry) => hasMatch(entry))
     new_data.sort((a, b) => calc_weight(b) - calc_weight(a))
   }
