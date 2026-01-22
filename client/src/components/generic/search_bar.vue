@@ -13,7 +13,7 @@ const searching = inject("searching");
 </script>
 
 <template>
-  <input class="search_bar" type="search" placeholder="Search"
+  <input class="search_bar" type="search" placeholder="Search: tag, color, shape"
          @keydown.esc="search=''"
          v-model="search">
   <h1 class="search_bar_clean bi-x-circle" @click="search=''"></h1>
@@ -28,8 +28,12 @@ const searching = inject("searching");
   color: white;
   z-index: 5;
   border-radius: 5px;
+  width: 200px;
 
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.25);
+}
+.search_bar::placeholder {
+  color: #666666;
 }
 
 .loader {
