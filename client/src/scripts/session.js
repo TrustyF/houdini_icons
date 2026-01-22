@@ -1,11 +1,11 @@
 import {axios} from "@bundled-es-modules/axios";
 
 export const get_session_seed = () => {
-  let sid = localStorage.getItem("session-seed");
+  let sid = localStorage.getItem("houdini-icons-session-seed");
   // let sid = false
   if (!sid) {
     sid = crypto.randomUUID();
-    localStorage.setItem("session-seed", sid);
+    localStorage.setItem("houdini-icons-session-seed", sid);
   }
   return sid;
 }
