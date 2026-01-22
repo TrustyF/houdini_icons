@@ -10,7 +10,7 @@
         <h1>Using icons</h1>
         <p>Copy the given icon name to the "icon" field of your HDA. Either the full path or just the file name should
           work.</p>
-        <img src="/help_images/img_1.jpg" alt="" class="image_block">
+        <img src="/help_images/img_1.webp" alt="" class="image_block">
 
       </div>
 
@@ -22,7 +22,7 @@
         <p>Icons can be found by searching for name, tags, color or shape. By default the search will return the most
           relevant result. </p>
         <p>You can specify a more strict search by using #tag, #color, #symbol or #shape</p>
-        <img src="/help_images/img_2.jpg" alt="" class="image_block">
+        <img src="/help_images/img_2.webp" alt="" class="image_block">
       </div>
     </div>
 
@@ -30,7 +30,7 @@
       <div class="text_block">
         <h1>Tag bubbles</h1>
         <p>Clicking on any of the tag bubbles of an icon will autofill the search bar</p>
-        <img src="/help_images/img_3.jpg" alt="" class="image_block">
+        <img src="/help_images/img_3.webp" alt="" class="image_block">
       </div>
     </div>
   </div>
@@ -80,9 +80,9 @@ p {
 
 .image_block {
   /*outline: 1px solid red;*/
-  /*height: 200px;*/
   margin: 15px 0 15px 0;
   width: 100%;
+  aspect-ratio: 16/9;
   object-fit: cover;
   /*border: 2px solid rgba(69, 69, 69, 0.5);*/
   /*height: 350px;*/
