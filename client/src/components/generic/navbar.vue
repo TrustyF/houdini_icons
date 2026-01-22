@@ -24,6 +24,11 @@
         <div class="bi-exclamation-circle"/>
         <p>Issue</p>
       </a>
+      <a class="github-button" href="https://arthur-sirjacobs.art/" target="_blank"
+         rel="noopener noreferrer">
+        <div class="bi-person-fill"/>
+        <p>Arthur Sirjacobs</p>
+      </a>
     </div>
   </nav>
 
