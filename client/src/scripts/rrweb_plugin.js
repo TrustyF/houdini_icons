@@ -11,10 +11,11 @@ let server_url = 'https://analytics-trustyfox.pythonanywhere.com'
 let curr_api = server_url
 let project = 'houdini_icons'
 
-let url = `${curr_api}/event/add`
+let url = `${curr_api}/session/add`
 
 async function send_batch(events) {
   let geo = await geo_location
+  console.log(geo)
   let sid = get_session_seed()
   let params = {
     source: project,
@@ -35,12 +36,9 @@ export default {
 
     stopRecording = record({
       emit(event) {
-          events.push(JSON.stringify(event));
+        events.push(JSON.stringify(event));
       },
-      sampling: {
-        scroll: 150,
-        input: 'last',
-      },
+      blockClass: 'notification_wrapper'
     });
 
     sendInterval = setInterval(() => {

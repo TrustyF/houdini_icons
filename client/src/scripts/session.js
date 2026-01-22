@@ -17,7 +17,7 @@ const get_geo = async () => {
   // console.log('getting ip')
 
   let url = 'https://api.ipify.org?format=json';
-  let geo_url = `${server_url}/event/geo_locate`
+  let geo_url = `${server_url}/session/geo_locate`
 
   let ip = await axios.get(url)
     .then(resp => resp.data['ip'])
