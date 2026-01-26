@@ -13,11 +13,6 @@ export default defineConfig({
   plugins: [
     vue(),
     compression(),
-    visualizer({
-      filename: `dist_stats/stats_${Date.now()}.html`,
-      open: false,
-      template: 'flamegraph',
-    })
   ],
   resolve: {
     alias: {

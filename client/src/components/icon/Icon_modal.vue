@@ -84,7 +84,7 @@ const position_style = computed(() => {
     <div class="sidebar" :style="screen_flip ? 'left:0;right:auto' : ''">
 
       <div class="bi-x sidebar_button" @click="close"/>
-      <div class="bi-download sidebar_button" @click="download_svg(data)"/>
+<!--      <div class="bi-download sidebar_button" @click="download_svg(data)"/>-->
 
     </div>
 
