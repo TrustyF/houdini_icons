@@ -39,11 +39,11 @@ function icon_select_callback(event) {
 
     <div class="icon_name"
          v-show="!settings.icon_only"
-         :title="data['name']['name']"> {{ data['name']['name'].replaceAll("_", ' ') }}
+         :title="data['name']"> {{ data['name'].replaceAll("_", ' ') }}
     </div>
 
     <div class="icon_category"
-         v-show="!settings.icon_only">{{ data['category']['name'] }}
+         v-show="!settings.icon_only">{{ data['category'] }}
     </div>
 
     <!--    <div class="tags">-->

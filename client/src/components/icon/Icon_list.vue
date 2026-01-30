@@ -2,7 +2,6 @@
 import data from "@/assets/database.json";
 import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch, shallowRef} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
-import Icon_modal from "@/components/icon/Icon_modal.vue";
 
 let search_timeout;
 const filtered_data = shallowRef([])
@@ -16,84 +15,22 @@ let ico_per_page = 51
 let page = 1
 let added_icons = 0
 
+function make_match(item, search_text) {
+  if (!search_text) return true
 
-function matchFields(data, query) {
-  // console.log('query', query)
-
-  const dat = {...data}
-
-  const matchesQuery = (value, type = null) => {
-    if (typeof (value) !== "string" && query.length < 1) {
-      return false;
-    }
-
-    // Check for strict matching prefix
-    if (query.startsWith("#strict ")) {
-      const strictQuery = query.slice(8);
-      return value === strictQuery;
-    }
-
-    if (query.startsWith("#color ")) {
-      const strictQuery = query.slice(7);
-      return value === strictQuery && type === 'color';
-    }
-
-    if (query.startsWith("#tag ")) {
-      const strictQuery = query.slice(5);
-      return value === strictQuery && type === 'tag';
-    }
-
-    if (query.startsWith("#symbol ")) {
-      const strictQuery = query.slice(8);
-      return value === strictQuery && type === 'symbol';
-    }
-
-    if (query.startsWith("#shape ")) {
-      const strictQuery = query.slice(7);
-      return value === strictQuery && type === 'shape';
-    }
-
-    return value.includes(query)
-  }
-
-  dat['name']['match'] = matchesQuery(dat['name']['name']) ? 1 : 0;
-  dat['category']['match'] = matchesQuery(dat['category']['name']) ? 1 : 0;
-  dat['tags'].forEach((elem) => elem['match'] = matchesQuery(elem['name'], elem['type']) ? 1 : 0)
-
-  return data;
+  if (item.name.toLowerCase().includes(search_text)) return true
+  return item.tags?.some(t => t.name.toLowerCase().includes(search_text));
 }
 
-function hasMatch(data) {
-  if (Array.isArray(data)) {
-    return data.some(hasMatch); // Check if any element in the array has a match
-  } else if (typeof data === 'object' && data !== null) {
-    if (data['match'] === 1) {
-      return true; // Found a match
-    }
-    return Object.values(data).some(hasMatch); // Check all properties of the object
-  }
-  return false; // Base case: not an object or array
-}
-
-function calc_weight(entry) {
-  let total_weight = 0
-
-  total_weight += entry['name']['match'] ? 1 : 0
-  total_weight += entry['category']['match'] ? 1 : 0
-  total_weight += entry['tags'].reduce((sum, att) => att['match'] ? sum + att['weight'] : sum, 0)
-
-  return total_weight
-}
 
 function make_search(append = true) {
 
+  const search_text = search.value.trim().toLowerCase();
   let new_data = data
 
-  if (search.value.length > 0) {
-    new_data = new_data.map((entry) => matchFields(entry, String(search.value).trim().toLowerCase()))
-    new_data = new_data.filter((entry) => hasMatch(entry))
-    new_data.sort((a, b) => calc_weight(b) - calc_weight(a))
-  }
+  new_data.filter(item => make_match(item, search_text))
+
+  console.log(new_data)
 
   if (append) {
     let pushed = new_data.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)

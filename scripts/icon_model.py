@@ -26,9 +26,9 @@ class Icon(Base):
     def to_dict(self):
         return {
             "id": self.id,
-            "name": {"name": self.name, "match": 0, "weight": 1},
+            "name": self.name,
             "image": self.image,
-            "category": {"name": self.category, "match": 0, "weight": 1},
+            "category": self.category,
             "tags": sorted([x.to_dict() for x in self.tags], reverse=True, key=lambda x:
             (custom_tag_order[x['type']], x['weight']))
         }
@@ -79,8 +79,6 @@ class IconTagAssoc(Base):
             'name': self.tag.name,
             'type': self.tag.type,
             'weight': self.weight,
-            'count': session.query(IconTagAssoc).filter_by(tag_id=self.tag_id).count(),
-            'match': 0
         }
 
     def __repr__(self):

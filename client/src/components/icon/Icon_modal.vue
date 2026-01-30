@@ -92,14 +92,14 @@ const position_style = computed(() => {
                 :icon_id="props.data.id" :scale_min="1" @click="close"/>
 
     <div class="icon_name full_name"
-         :title="data['name']['name']"> {{ data['name']['name'].replaceAll("_", ' ') }}
+         :title="data['name']"> {{ data['name'].replaceAll("_", ' ') }}
     </div>
 
-    <div class="icon_category">{{ data['category']['name'] }}</div>
+    <div class="icon_category">{{ data['category'] }}</div>
 
     <div class="icon_path_box" @click="add_to_clipboard">
       <div class="bi-copy"/>
-      <div>{{ `${data['category']['name']}_${data['name']['name']}.svg` }}
+      <div>{{ `${data['category']}_${data['name']}.svg` }}
       </div>
     </div>
 
@@ -131,11 +131,12 @@ const position_style = computed(() => {
 
   padding: 20px;
   border: #262626 3px solid;
-  border-radius: 5px;
+  border-radius: 8px;
   user-select: none;
   /*background-color: #1f1f1f;*/
-  background: linear-gradient(to bottom, #1f1f1f 25%, #1d2626 150%);
+  background: linear-gradient(to bottom, rgba(31, 31, 31, 0.8) 25%, rgba(29, 38, 38, 1) 150%);
   box-shadow: rgba(0, 0, 0, 0.9) 0 0 30px, rgba(0, 0, 0, 0.8) 0 0 50px;
+  backdrop-filter: blur(15px);
 }
 
 .sidebar {

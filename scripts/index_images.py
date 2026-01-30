@@ -163,7 +163,7 @@ def dump_json():
     all_icons = [x.to_dict() for x in session.query(Icon).all()]
 
     with open('C:/A_Mod/A_Projects/Webdev/houdini_icons/client/src/assets/database.json', 'w') as outfile:
-        json.dump(all_icons, outfile, indent=1)
+        json.dump(all_icons, outfile)
 
 
 def remake_images():
