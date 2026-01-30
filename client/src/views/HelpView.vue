@@ -45,7 +45,7 @@
   justify-content: center;
   align-items: center;
   margin: 50px 0 150px 0;
-  gap: 20px;
+  gap: 100px;
   /*padding: 0;*/
   position: relative;
   color: white;
@@ -68,13 +68,13 @@
 }
 
 h1 {
-  font-size: 1.5em;
+  font-size: 2em;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
 }
 
 p {
-  font-size: 16px;
+  font-size: 1em;
   color: #e6edf3;
 }
 

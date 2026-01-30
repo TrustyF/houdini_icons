@@ -1,13 +1,7 @@
 import {axios} from "@bundled-es-modules/axios";
 
 export const get_session_seed = () => {
-  let sid = localStorage.getItem("houdini-icons-session-seed");
-  // let sid = false
-  if (!sid) {
-    sid = crypto.randomUUID();
-    localStorage.setItem("houdini-icons-session-seed", sid);
-  }
-  return sid;
+    return  String(crypto.randomUUID()) + "houdini-icons";
 }
 
 let server_url = ' https://analytics-trustyfox.pythonanywhere.com'
@@ -24,7 +18,7 @@ const get_geo = async () => {
     .catch(err => null)
 
   if (!ip) {
-    console.log("IP retrieval failed, skipping geolocation.");
+    // console.log("IP retrieval failed, skipping geolocation.");
     return null;
   }
 
