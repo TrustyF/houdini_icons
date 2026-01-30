@@ -15,7 +15,7 @@ let url = `${curr_api}/session/add`
 
 async function send_batch(events) {
   let geo = await geo_location
-  console.log(geo)
+  // console.log(geo)
   let sid = get_session_seed()
   let params = {
     source: project,
@@ -25,7 +25,7 @@ async function send_batch(events) {
   }
 
   axios.post(url, params).catch((e) => {
-    console.log(e)
+    // console.log(e)
   })
 
 }
@@ -44,7 +44,7 @@ export default {
     sendInterval = setInterval(() => {
       if (events.length === 0) return;
       send_batch(events).then()
-      console.log(events.length)
+      // console.log(events.length)
       events = [];
     }, 10000);
   },
