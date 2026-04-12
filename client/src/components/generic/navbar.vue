@@ -1,5 +1,4 @@
 <script setup>
-
 </script>
 
 <template>
@@ -17,7 +16,6 @@
       <a class="github-button" href="https://github.com/TrustyF/houdini_icons" target="_blank"
          rel="noopener noreferrer">
         <div class="bi-github"/>
-        <p>GitHub</p>
       </a>
       <a class="github-button" href="https://github.com/TrustyF/houdini_icons/issues" target="_blank"
          rel="noopener noreferrer">

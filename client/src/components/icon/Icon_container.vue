@@ -101,7 +101,7 @@ function icon_select_callback(event) {
   /*outline: 1px solid orange;*/
   color: rgba(84, 84, 84, 1);
   font-size: 0.6em;
-  font-weight: 1000;
+  font-weight: 500;
   line-height: 1;
   /*text-align: center;*/
 
