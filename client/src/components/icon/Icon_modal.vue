@@ -50,19 +50,41 @@ function close(e) {
 }
 
 
+// Flip based on whether the space to the right of the click point can
+// actually fit the modal's worst-case width (the same cap the CSS
+// max-width enforces), rather than a fixed screen-percentage split — a
+// fixed split can still pick "grow rightward" for a click near the
+// middle of a narrow screen even though the modal needs more room than
+// is actually left, pushing it past the viewport edge.
+const modal_max_width = computed(() => Math.min(400, window.innerWidth - 24))
+
 const screen_flip = computed(() => {
-  if (window.innerWidth > 500) return props.position.x > window.innerWidth * 0.7
-  else return props.position.x > window.innerWidth / 2
+  const space_right = window.innerWidth - props.position.x
+  return space_right < modal_max_width.value
 })
 
 const position_style = computed(() => {
   const margin = 13
-  if (screen_flip.value) return `
-  right:${props.position['xf'] - margin}px;
+
+  // Clamp the offset itself so the box — whose width is always <=
+  // modal_max_width thanks to the CSS max-width cap — can never be
+  // pushed past the *opposite* edge either, which a raw click-relative
+  // offset doesn't guard against on narrow screens where the modal's
+  // worst-case width leaves little to no slack either side.
+  const min_offset = margin
+  const max_offset = Math.max(margin, window.innerWidth - modal_max_width.value - margin)
+
+  if (screen_flip.value) {
+    const right = Math.min(Math.max(props.position['xf'] - margin, min_offset), max_offset)
+    return `
+  right:${right}px;
   top:${props.position['y'] - margin}px;
   `
+  }
+
+  const left = Math.min(Math.max(props.position['x'] - margin, min_offset), max_offset)
   return `
-  left:${props.position['x'] - margin}px;
+  left:${left}px;
   top:${props.position['y'] - margin}px;
   `
 })
@@ -121,6 +143,7 @@ const position_style = computed(() => {
   align-items: flex-start;
 
   width: auto;
+  max-width: min(400px, calc(100vw - 24px));
 
   padding: 20px;
   border: #262626 3px solid;

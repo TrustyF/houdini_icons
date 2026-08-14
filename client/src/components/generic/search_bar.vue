@@ -7,14 +7,21 @@ const searching = inject("searching");
 </script>
 
 <template>
-  <input class="search_bar" type="search" placeholder="Search: tag, color, shape"
-         @keydown.esc="search=''"
-         v-model="search">
-  <h1 class="search_bar_clean bi-x-circle" @click="search=''"></h1>
-  <div :class="`spinner-border loader ${searching ? 'visible' : ''}`"></div>
+  <div class="search_bar_wrapper">
+    <input class="search_bar" type="search" placeholder="Search: tag, color, shape"
+           @keydown.esc="search=''"
+           v-model="search">
+    <h1 class="search_bar_clean bi-x-circle" @click="search=''"></h1>
+    <div :class="`spinner-border loader ${searching ? 'visible' : ''}`"></div>
+  </div>
 </template>
 
 <style scoped>
+.search_bar_wrapper {
+  position: relative;
+  display: flex;
+}
+
 .search_bar {
   padding: 5px;
   border: 1px solid #4d4d4d;

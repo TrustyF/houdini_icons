@@ -9,6 +9,12 @@
     font-weight: normal;
 }
 
+@media (max-width: 480px) {
+    #app {
+        padding: 0 0.75rem 1rem 0.75rem;
+    }
+}
+
 a {
     text-decoration: none;
 }

@@ -18,7 +18,9 @@ const icon_scale = computed(() => settings.icon_scale)
 const icon_intrinsic_width = computed(() => `${Math.max(50, Math.round(120 * icon_scale.value))}px`)
 const icon_intrinsic_height = computed(() => `${Math.max(60, Math.round(153 * icon_scale.value))}px`)
 
-let ico_per_page = 51
+// Smaller phones mount fewer icons per batch, so infinite scroll stays
+// light on weaker devices instead of force-mounting a desktop-sized page.
+let ico_per_page = window.innerWidth <= 480 ? 12 : 51
 let page = 1
 let added_icons = 0
 
@@ -174,7 +176,10 @@ onMounted(async () => {
 <template>
 
 
-  <div class="icons_list" ref="icon_list_ref">
+  <div class="icons_list"
+       ref="icon_list_ref"
+       :class="{icon_only: settings.icon_only}"
+       :style="{'--icon-scale': icon_scale}">
 
     <lazy-component class="icon_list_elem"
                     v-for="(icon, index) in filtered_data"
@@ -209,6 +214,20 @@ onMounted(async () => {
   justify-content: flex-start;
   align-items: flex-start;
   /*gap: 5px;*/
+}
+
+@media (max-width: 480px) {
+  .icons_list {
+    justify-content: center;
+  }
+}
+
+/* Hiding the name/category via a single ancestor class + CSS descendant
+   selector (instead of a v-show inside every icon_container instance) means
+   toggling "icon only" is one Vue update instead of one per mounted icon. */
+.icons_list.icon_only :deep(.icon_name),
+.icons_list.icon_only :deep(.icon_category) {
+  display: none;
 }
 
 .icon_list_elem {

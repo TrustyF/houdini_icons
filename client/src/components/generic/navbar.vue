@@ -9,26 +9,29 @@
     </RouterLink>
 
     <RouterLink to="/help" class="link" active-class="link_active">
-      <h2>How to use</h2>
+      <h2>
+        <span class="help_text_full">How to use</span>
+        <span class="help_text_short">Help</span>
+      </h2>
     </RouterLink>
 
     <div class="external_links">
       <a class="github-button kofi-button" href="https://ko-fi.com/arthursirjacobs" target="_blank"
          rel="noopener noreferrer">
         <div class="bi-cup-hot-fill"/>
-        <p>Support on Ko-fi</p>
+        <p>Ko-fi</p>
       </a>
 <!--      <a class="github-button" href="https://github.com/TrustyF/houdini_icons" target="_blank"-->
 <!--         rel="noopener noreferrer">-->
 <!--        <div class="bi-github"/>-->
 <!--      </a>-->
-      <a class="github-button" href="https://github.com/TrustyF/houdini_icons/issues" target="_blank"
-         rel="noopener noreferrer">
+      <a class="github-button hide_on_mobile" href="https://github.com/TrustyF/houdini_icons/issues" target="_blank"
+         rel="noopener noreferrer" title="Issue" aria-label="Issue">
         <div class="bi-exclamation-circle"/>
         <p>Issue</p>
       </a>
-      <a class="github-button" href="https://arthur-sirjacobs.art/" target="_blank"
-         rel="noopener noreferrer">
+      <a class="github-button collapse_on_mobile" href="https://arthur-sirjacobs.art/" target="_blank"
+         rel="noopener noreferrer" title="Arthur Sirjacobs" aria-label="Arthur Sirjacobs">
         <div class="bi-person-fill"/>
         <p>Arthur Sirjacobs</p>
       </a>
@@ -42,7 +45,8 @@ nav {
   display: flex;
   flex-flow: row wrap;
   align-items: center;
-  gap: 20px;
+  column-gap: 30px;
+  row-gap: 10px;
 
   margin: 20px 0 20px 0;
 }
@@ -57,7 +61,6 @@ nav {
   flex-flow: row;
   gap: 3px;
   align-items: center;
-  margin-right: 50px;
 
   h1 {
     line-height: 1em;
@@ -75,13 +78,35 @@ nav {
   color: white;
 }
 
+.help_text_short {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .help_text_full {
+    display: none;
+  }
+
+  .help_text_short {
+    display: inline;
+  }
+
+  .github-button.collapse_on_mobile p {
+    display: none;
+  }
+
+  .github-button.hide_on_mobile {
+    display: none;
+  }
+}
+
 .external_links {
   /*position: absolute;*/
   margin-left: auto;
   right: 0;
   top: 0;
   display: flex;
-  flex-flow: row;
+  flex-flow: row wrap;
   gap: 5px;
 }
 

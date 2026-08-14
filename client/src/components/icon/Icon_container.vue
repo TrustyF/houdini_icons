@@ -1,19 +1,14 @@
 <script setup>
-import {computed, inject, ref} from "vue";
+import {inject, ref} from "vue";
 import Icon_image from "@/components/icon/Icon_image.vue";
 
 let props = defineProps({
   data: Object
 });
 
-const settings = inject("settings");
-
 const icon_modal_pos = inject("icon_modal_pos");
 const icon_modal_vis = inject("icon_modal_vis");
 const icon_modal_id = inject("icon_modal_id");
-
-let icon_scale = computed(() => settings.icon_scale)
-let icon_size = computed(() => `${120 * icon_scale.value}px`)
 
 let master_icon = ref()
 
@@ -36,12 +31,10 @@ function icon_select_callback(event) {
     <icon_image :icon_id="props.data.id"/>
 
     <div class="icon_name"
-         v-show="!settings.icon_only"
          :title="data['name']"> {{ data['name'].replaceAll("_", ' ') }}
     </div>
 
-    <div class="icon_category"
-         v-show="!settings.icon_only">{{ data['category'] }}
+    <div class="icon_category">{{ data['category'] }}
     </div>
 
     <div class="click_zone" @click="icon_select_callback"></div>
@@ -51,7 +44,7 @@ function icon_select_callback(event) {
 
 <style scoped>
 .icon_container_wrapper {
-  max-width: v-bind(icon_size);
+  max-width: calc(120px * var(--icon-scale, 1) * var(--icon-density, 1));
 
   position: relative;
   display: flex;
@@ -59,7 +52,7 @@ function icon_select_callback(event) {
   justify-items: flex-start;
   align-items: flex-start;
 
-  padding: calc(10px * v-bind(icon_scale));
+  padding: calc(10px * var(--icon-scale, 1) * var(--icon-density, 1));
   border-radius: 5px;
   user-select: none;
 }

@@ -29,6 +29,17 @@
 
   --color-heading: var(--vt-c-text-dark-1);
   --color-text: var(--vt-c-text-dark-2);
+
+  /* Scales icon tiles independently of the user's icon-size slider, so
+     phones get a denser grid than the 120px desktop default without
+     touching the slider's own range. */
+  --icon-density: 1;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --icon-density: 0.72;
+  }
 }
 
 *,

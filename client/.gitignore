@@ -32,3 +32,4 @@ coverage
 /package-lock.json
 /public/atlas/
 /public/database/
+/.firebaserc

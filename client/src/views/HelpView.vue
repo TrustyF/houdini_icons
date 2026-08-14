@@ -16,23 +16,23 @@
 
     </div>
 
-<!--    <div class="text_wrapper">-->
-<!--      <div class="text_block">-->
-<!--        <h1>Search</h1>-->
-<!--        <p>Icons can be found by searching for name, tags, color or shape. By default the search will return the most-->
-<!--          relevant result. </p>-->
-<!--        <p>You can specify a more strict search by using #tag, #color, #symbol or #shape</p>-->
-<!--        <img src="/help_images/img_2.webp" alt="" class="image_block">-->
-<!--      </div>-->
-<!--    </div>-->
+    <div class="text_wrapper">
+      <div class="text_block">
+        <h1>Search</h1>
+        <p>Icons can be found by searching for name, tags, color or shape. By default the search will return the most
+          relevant result. </p>
+        <p>You can specify a more strict search by using #tag, #color, #symbol or #shape</p>
+        <img src="/help_images/img_2.webp" alt="" class="image_block">
+      </div>
+    </div>
 
-<!--    <div class="text_wrapper">-->
-<!--      <div class="text_block">-->
-<!--        <h1>Tag bubbles</h1>-->
-<!--        <p>Clicking on any of the tag bubbles of an icon will autofill the search bar</p>-->
-<!--        <img src="/help_images/img_3.webp" alt="" class="image_block">-->
-<!--      </div>-->
-<!--    </div>-->
+    <div class="text_wrapper">
+      <div class="text_block">
+        <h1>Tag bubbles</h1>
+        <p>Clicking on any of the tag bubbles of an icon will autofill the search bar</p>
+        <img src="/help_images/img_3.webp" alt="" class="image_block">
+      </div>
+    </div>
   </div>
 </template>
 
