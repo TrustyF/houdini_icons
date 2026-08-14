@@ -1,6 +1,6 @@
 <script setup>
 import {icon_data, icon_data_ready, icon_data_promise} from "@/scripts/database.js";
-import {inject, onMounted, ref, watch, shallowRef, computed} from "vue";
+import {inject, onMounted, onUnmounted, ref, watch, shallowRef, computed} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
 
 let search_timeout;
@@ -9,7 +9,7 @@ const filtered_data = shallowRef([])
 const search = inject("search");
 const searching = inject("searching");
 const icon_modal_vis = inject("icon_modal_vis");
-const icon_list_ref = ref()
+const sentinel_ref = ref()
 const settings = inject("settings");
 
 // Rendering cost estimate for content-visibility below, so the skipped
@@ -22,7 +22,6 @@ const icon_intrinsic_height = computed(() => `${Math.max(60, Math.round(153 * ic
 // light on weaker devices instead of force-mounting a desktop-sized page.
 let ico_per_page = window.innerWidth <= 480 ? 12 : 51
 let page = 1
-let added_icons = 0
 
 const STRICT_PREFIXES = [
   {prefix: '#strict ', type: null},
@@ -32,17 +31,50 @@ const STRICT_PREFIXES = [
   {prefix: '#shape ', type: 'shape'},
 ]
 
+// The tagging pipeline canonicalizes spelling/formatting variants onto one
+// name (e.g. "grey" -> "gray", "push pin" -> "pushpin", see icon_model.py's
+// TAG_SYNONYMS) so they merge into a single tag instead of fragmenting
+// search. Mirror that here so a query using a non-canonical variant still
+// matches instead of silently returning zero results. Whole-term lookup
+// (not per-word) since some of these are phrase-level swaps where the
+// word count itself changes, e.g. "userinterface" (one word) <->
+// "user interface" (two words).
+const SEARCH_SYNONYMS = {
+  grey: 'gray',
+  doughnut: 'donut',
+  'push pin': 'pushpin',
+  userinterface: 'user interface',
+  'user-interface': 'user interface',
+  pixelart: 'pixel art',
+  videogame: 'video game',
+  roundedrectangle: 'rounded rectangle',
+  'rounded-rectangle': 'rounded rectangle',
+  'semi-circle': 'semicircle',
+  'curly brace': 'curlybrace',
+  lightblue: 'light blue',
+  'light-blue': 'light blue',
+  lightgreen: 'light green',
+  darkgreen: 'dark green',
+  darkblue: 'dark blue',
+  'dark-blue': 'dark blue',
+}
+
 // Prefix is parsed once per search instead of once per field per entry.
 function parse_query(raw) {
   const query = raw.trim().toLowerCase()
 
   for (const {prefix, type} of STRICT_PREFIXES) {
     if (query.startsWith(prefix)) {
-      return {term: query.slice(prefix.length), type, exact: true}
+      const term = query.slice(prefix.length)
+      return {term: canonicalize_term(term), type, exact: true}
     }
   }
 
-  return {term: query, type: null, exact: false}
+  return {term: canonicalize_term(query), type: null, exact: false}
+}
+
+function canonicalize_term(term) {
+  return SEARCH_SYNONYMS[term] ?? term
 }
 
 function matchesQuery(value, type, parsed) {
@@ -100,44 +132,34 @@ function make_search(append = true) {
 
   let pushed = search_result.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
   filtered_data.value = append ? [...filtered_data.value, ...pushed] : pushed
-  added_icons = pushed.length
-
-  setTimeout(() => {
-    searching.value = search.value.length > 0
-    check_list_size()
-  }, 5)
+  searching.value = search.value.length > 0
 }
 
-function check_list_size() {
-  const padding = 2000
+let observer
 
-  if (!icon_list_ref.value) return
-
-  const rect = icon_list_ref.value.getBoundingClientRect();
-  const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-
-  // Check if the bottom of the element is within the visible viewport
-  if (rect.bottom > -padding && rect.bottom <= windowHeight + padding && added_icons > 0) {
-    page += 1
-    make_search()
-    setTimeout(() => check_list_size(), 500)
-  }
-}
-
-// getBoundingClientRect() above forces a synchronous layout; scroll fires far
-// more often than a frame renders, so cap it to once per animation frame
-// instead of running that layout read on every single scroll event.
-let scroll_ticking = false
-
-function on_scroll() {
-  if (scroll_ticking) return
-  scroll_ticking = true
+// A sentinel that stays continuously inside the 2000px rootMargin across
+// a DOM update never re-crosses the intersection threshold, so the
+// observer won't fire again on its own. Re-observing forces a fresh
+// check next frame — needed both for auto-filling a short result set
+// (load_more) and after a search swaps in a shorter/taller list, since
+// the observer's last-known state (e.g. "still intersecting" from an
+// exhausted previous search) would otherwise never fire again and leave
+// the new list stuck without triggering another load.
+function resync_observer() {
+  if (!observer || !sentinel_ref.value) return
+  observer.unobserve(sentinel_ref.value)
   requestAnimationFrame(() => {
-    check_list_size()
-    scroll_ticking = false
+    if (sentinel_ref.value) observer.observe(sentinel_ref.value)
   })
 }
 
+function load_more() {
+  if (filtered_data.value.length >= search_result.length) return
+
+  page += 1
+  make_search()
+  resync_observer()
+}
 
 // Chunks keep arriving in the background after the first one unblocks the
 // UI. Keep the cached result set and the currently-visible page in sync as
@@ -146,6 +168,7 @@ function on_scroll() {
 watch(icon_data, () => {
   search_result = run_search(String(search.value).trim().toLowerCase())
   filtered_data.value = search_result.slice(0, page * ico_per_page)
+  resync_observer()
 })
 
 watch(search, (oldV, newV) => {
@@ -160,6 +183,7 @@ watch(search, (oldV, newV) => {
   search_timeout = setTimeout(() => {
     requestAnimationFrame(() => {
       make_search(false)
+      resync_observer()
     })
   }, 500); // Delay the operation
 
@@ -168,8 +192,16 @@ watch(search, (oldV, newV) => {
 onMounted(async () => {
   await icon_data_promise
   make_search()
-  addEventListener("scroll", on_scroll)
-  check_list_size()
+
+  observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) load_more()
+  }, {rootMargin: '0px 0px 2000px 0px'})
+
+  if (sentinel_ref.value) observer.observe(sentinel_ref.value)
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 
 </script>
@@ -177,7 +209,6 @@ onMounted(async () => {
 
 
   <div class="icons_list"
-       ref="icon_list_ref"
        :class="{icon_only: settings.icon_only}"
        :style="{'--icon-scale': icon_scale}">
 
@@ -188,6 +219,8 @@ onMounted(async () => {
                     :threshold="0.1" rootMargin="0px 0px 2000px 0px">
       <icon_container :data="icon"/>
     </lazy-component>
+
+    <div ref="sentinel_ref" class="scroll_sentinel"></div>
 
     <div :class="`list-spinner ${(searching || !icon_data_ready) ? 'visible':''}`">
       <div class="spinner-border"></div>
@@ -220,6 +253,11 @@ onMounted(async () => {
   .icons_list {
     justify-content: center;
   }
+}
+
+.scroll_sentinel {
+  width: 100%;
+  height: 1px;
 }
 
 /* Hiding the name/category via a single ancestor class + CSS descendant

@@ -7,7 +7,7 @@ from cffi.model import qualify
 from dotenv import load_dotenv
 from openai import OpenAI
 from db_loader import session, Session_maker
-from icon_model import Tag, Icon, IconTagAssoc
+from icon_model import Tag, Icon, IconTagAssoc, TAG_SYNONYMS
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 import base64
@@ -90,7 +90,13 @@ def make_icon(index, icon_path):
     index = index + 1
 
     def validate_name(name):
-        return name.strip().lower().replace('_', '')
+        # Mirror Tag.val's normalization exactly, synonym collapse included —
+        # otherwise this pre-insert existence check looks up the raw name
+        # (e.g. "grey") while the DB only has the canonical one ("gray"),
+        # finds nothing, and tries to insert a duplicate that Tag.val would
+        # resolve to the same already-unique name.
+        name = name.strip().lower().replace('_', '')
+        return TAG_SYNONYMS.get(name, name)
 
     ico_name = os.path.splitext(os.path.basename(icon_path))[0]
     ico_category = os.path.basename(os.path.dirname(icon_path))

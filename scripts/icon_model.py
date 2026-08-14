@@ -34,6 +34,35 @@ class Icon(Base):
         }
 
 
+# The tagger (GPT, in index_images.py) has no controlled vocabulary — it
+# free-texts a name per tag, so it happily produces both spellings of the
+# same concept across different icons (e.g. "grey" on one, "gray" on
+# another) since neither collides with the other after basic
+# strip/lower/underscore normalization. Collapsing known synonyms onto one
+# canonical spelling here means every write path (index_images.py,
+# cleanup_db.py, ad-hoc scripts) merges them into a single Tag row instead
+# of silently fragmenting search/filtering.
+TAG_SYNONYMS = {
+    'grey': 'gray',
+    'doughnut': 'donut',
+    'push pin': 'pushpin',
+    'userinterface': 'user interface',
+    'user-interface': 'user interface',
+    'pixelart': 'pixel art',
+    'videogame': 'video game',
+    'roundedrectangle': 'rounded rectangle',
+    'rounded-rectangle': 'rounded rectangle',
+    'semi-circle': 'semicircle',
+    'curly brace': 'curlybrace',
+    'lightblue': 'light blue',
+    'light-blue': 'light blue',
+    'lightgreen': 'light green',
+    'darkgreen': 'dark green',
+    'darkblue': 'dark blue',
+    'dark-blue': 'dark blue',
+}
+
+
 class Tag(Base):
     __tablename__ = "tag"
 
@@ -45,7 +74,8 @@ class Tag(Base):
 
     @validates('name')
     def val(self, key, value):
-        return value.strip().lower().replace('_', '')
+        value = value.strip().lower().replace('_', '')
+        return TAG_SYNONYMS.get(value, value)
 
     def __repr__(self):
         return f"<Tag({self.id},{self.name})>"
