@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "npm run build-manifest && npm run build-database",
     "dev": "vite",
     "build-manifest": "node build-manifest.js",
-    "build": "npm run build-manifest && vite build",
+    "build-database": "node build-database.js",
+    "build": "npm run build-manifest && npm run build-database && vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix"
   },

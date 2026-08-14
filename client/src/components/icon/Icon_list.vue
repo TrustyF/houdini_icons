@@ -1,6 +1,6 @@
 <script setup>
-import data from "@/assets/database.json";
-import {inject, onMounted, ref, watch, shallowRef} from "vue";
+import {icon_data, icon_data_ready, icon_data_promise} from "@/scripts/database.js";
+import {inject, onMounted, ref, watch, shallowRef, computed} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
 
 let search_timeout;
@@ -10,6 +10,13 @@ const search = inject("search");
 const searching = inject("searching");
 const icon_modal_vis = inject("icon_modal_vis");
 const icon_list_ref = ref()
+const settings = inject("settings");
+
+// Rendering cost estimate for content-visibility below, so the skipped
+// placeholder roughly matches an actual icon_container at the current scale.
+const icon_scale = computed(() => settings.icon_scale)
+const icon_intrinsic_width = computed(() => `${Math.max(50, Math.round(120 * icon_scale.value))}px`)
+const icon_intrinsic_height = computed(() => `${Math.max(60, Math.round(153 * icon_scale.value))}px`)
 
 let ico_per_page = 51
 let page = 1
@@ -64,12 +71,12 @@ function match_entry(entry, parsed) {
 }
 
 function run_search(raw) {
-  if (!raw) return data
+  if (!raw) return icon_data.value
 
   const parsed = parse_query(raw)
   const results = []
 
-  for (const entry of data) {
+  for (const entry of icon_data.value) {
     const {matched, weight} = match_entry(entry, parsed)
     if (matched) results.push({entry, weight})
   }
@@ -80,7 +87,7 @@ function run_search(raw) {
 
 // Cached full result for the current query, so pagination during
 // infinite scroll just slices it instead of re-running the search.
-let search_result = data
+let search_result = icon_data.value
 
 function make_search(append = true) {
 
@@ -115,6 +122,29 @@ function check_list_size() {
   }
 }
 
+// getBoundingClientRect() above forces a synchronous layout; scroll fires far
+// more often than a frame renders, so cap it to once per animation frame
+// instead of running that layout read on every single scroll event.
+let scroll_ticking = false
+
+function on_scroll() {
+  if (scroll_ticking) return
+  scroll_ticking = true
+  requestAnimationFrame(() => {
+    check_list_size()
+    scroll_ticking = false
+  })
+}
+
+
+// Chunks keep arriving in the background after the first one unblocks the
+// UI. Keep the cached result set and the currently-visible page in sync as
+// they land, so newly-loaded matches show up without requiring a scroll or
+// a re-search.
+watch(icon_data, () => {
+  search_result = run_search(String(search.value).trim().toLowerCase())
+  filtered_data.value = search_result.slice(0, page * ico_per_page)
+})
 
 watch(search, (oldV, newV) => {
   icon_modal_vis.value = false
@@ -133,9 +163,10 @@ watch(search, (oldV, newV) => {
 
 })
 
-onMounted(() => {
+onMounted(async () => {
+  await icon_data_promise
   make_search()
-  addEventListener("scroll", check_list_size)
+  addEventListener("scroll", on_scroll)
   check_list_size()
 })
 
@@ -146,16 +177,18 @@ onMounted(() => {
   <div class="icons_list" ref="icon_list_ref">
 
     <lazy-component class="icon_list_elem"
-                    v-for="icon in filtered_data"
-                    :key="icon['id']" :threshold="0.1" rootMargin="0px 0px 2000px 0px">
+                    v-for="(icon, index) in filtered_data"
+                    :key="icon['id']"
+                    :is-intersected="index < ico_per_page"
+                    :threshold="0.1" rootMargin="0px 0px 2000px 0px">
       <icon_container :data="icon"/>
     </lazy-component>
 
-    <div :class="`list-spinner ${searching ? 'visible':''}`">
+    <div :class="`list-spinner ${(searching || !icon_data_ready) ? 'visible':''}`">
       <div class="spinner-border"></div>
     </div>
 
-    <div class="empty" :class="`${filtered_data.length < 1 ? 'empty_vis' : ''}`">
+    <div class="empty" :class="`${(icon_data_ready && filtered_data.length < 1) ? 'empty_vis' : ''}`">
       <h1>No results</h1>
     </div>
 
@@ -165,8 +198,6 @@ onMounted(() => {
 <style scoped>
 
 .icons_list {
-  content-visibility: auto;
-  contain-intrinsic-size: 150px;
   position: relative;
 
   margin-top: 20px;
@@ -181,7 +212,24 @@ onMounted(() => {
 }
 
 .icon_list_elem {
+  /* Skip layout/style/paint for icons scrolled off-screen, same benefit
+     v-lazy-component gave us, but synchronous (CSS, not an
+     IntersectionObserver callback) so there's no delayed pop-in. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto v-bind(icon_intrinsic_width) auto v-bind(icon_intrinsic_height);
 
+  /* Plain CSS animation instead of <transition-group>: it plays whenever an
+     element is newly inserted (i.e. only genuinely new icons, since v-for's
+     :key reuses DOM nodes for ones that already existed), with none of
+     TransitionGroup's per-update getBoundingClientRect cost across every
+     loaded item. */
+  /*animation: icon-fade-in 100ms ease;*/
+}
+
+@keyframes icon-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .list-spinner {

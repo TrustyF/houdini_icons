@@ -31,7 +31,7 @@ function get_color_from_type(type) {
 
 <template>
   <div class="tag_list">
-    <div v-for="tag in filtered" :key="tag['id']">
+    <div v-for="tag in filtered" :key="`${tag['type']}-${tag['name']}`">
       <div class="tag"
            :style="`background-color:${get_color_from_type(tag['type'])};`"
            @click="add_to_search(tag)">

@@ -2,7 +2,7 @@
 import {RouterView} from 'vue-router'
 import {defineAsyncComponent, provide, reactive, ref} from "vue";
 import Navbar from "@/components/generic/navbar.vue";
-import data from "@/assets/database.json";
+import {icon_data} from "@/scripts/database.js";
 import Icon_modal from "@/components/icon/Icon_modal.vue";
 
 let NotificationModal = defineAsyncComponent(() => import("@/components/generic/notificationModal.vue"))
@@ -44,7 +44,7 @@ function icon_modal_close() {
 
   <icon_modal :position="icon_modal_pos"
               :visibility="icon_modal_vis"
-              :data="data[icon_modal_id-1]"
+              :data="icon_data[icon_modal_id-1]"
               @close="icon_modal_close"
   />
 
