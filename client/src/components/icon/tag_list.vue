@@ -1,17 +1,11 @@
 <script setup>
-import {inject, onMounted, watch, ref, computed, onUpdated} from "vue";
+import {inject, computed} from "vue";
 
 let props = defineProps({
   content: Array, expanded: Boolean
 });
 let emits = defineEmits(["tag_search"]);
 const search = inject("search");
-const searching = inject("searching");
-const tag_ref = ref()
-
-const settings = inject("settings");
-
-let icon_scale = computed(() => settings.icon_scale)
 
 function add_to_search(tag) {
   search.value = `#${tag['type']} ${tag['name']}`
@@ -38,7 +32,7 @@ function get_color_from_type(type) {
 <template>
   <div class="tag_list">
     <div v-for="tag in filtered" :key="tag['id']">
-      <div ref="tag_ref" class="tag"
+      <div class="tag"
            :style="`background-color:${get_color_from_type(tag['type'])};`"
            @click="add_to_search(tag)">
         <h1>{{ `${tag['name']}` }}</h1>

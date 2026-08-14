@@ -13,10 +13,15 @@
     </RouterLink>
 
     <div class="external_links">
-      <a class="github-button" href="https://github.com/TrustyF/houdini_icons" target="_blank"
+      <a class="github-button kofi-button" href="https://ko-fi.com/arthursirjacobs" target="_blank"
          rel="noopener noreferrer">
-        <div class="bi-github"/>
+        <div class="bi-cup-hot-fill"/>
+        <p>Support on Ko-fi</p>
       </a>
+<!--      <a class="github-button" href="https://github.com/TrustyF/houdini_icons" target="_blank"-->
+<!--         rel="noopener noreferrer">-->
+<!--        <div class="bi-github"/>-->
+<!--      </a>-->
       <a class="github-button" href="https://github.com/TrustyF/houdini_icons/issues" target="_blank"
          rel="noopener noreferrer">
         <div class="bi-exclamation-circle"/>
@@ -98,5 +103,14 @@ nav {
 
 .github-button:hover {
   background-color: #333333;
+}
+
+.kofi-button {
+  border-color: #5a3a1e;
+  color: #ff9d5c;
+}
+
+.kofi-button:hover {
+  background-color: #4a2e0f;
 }
 </style>

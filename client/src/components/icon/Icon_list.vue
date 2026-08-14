@@ -1,6 +1,6 @@
 <script setup>
 import data from "@/assets/database.json";
-import {defineAsyncComponent, inject, provide, onBeforeMount, onMounted, reactive, ref, watch, shallowRef} from "vue";
+import {inject, onMounted, ref, watch, shallowRef} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
 
 let search_timeout;
@@ -15,32 +15,83 @@ let ico_per_page = 51
 let page = 1
 let added_icons = 0
 
-function make_match(item, search_text) {
-  if (!search_text) return true
+const STRICT_PREFIXES = [
+  {prefix: '#strict ', type: null},
+  {prefix: '#color ', type: 'color'},
+  {prefix: '#tag ', type: 'tag'},
+  {prefix: '#symbol ', type: 'symbol'},
+  {prefix: '#shape ', type: 'shape'},
+]
 
-  if (item.name.toLowerCase().includes(search_text)) return true
-  return item.tags?.some(t => t.name.toLowerCase().includes(search_text));
+// Prefix is parsed once per search instead of once per field per entry.
+function parse_query(raw) {
+  const query = raw.trim().toLowerCase()
+
+  for (const {prefix, type} of STRICT_PREFIXES) {
+    if (query.startsWith(prefix)) {
+      return {term: query.slice(prefix.length), type, exact: true}
+    }
+  }
+
+  return {term: query, type: null, exact: false}
 }
 
+function matchesQuery(value, type, parsed) {
+  if (typeof value !== "string") return false
+  if (parsed.exact) return value === parsed.term && (parsed.type === null || type === parsed.type)
+  return value.includes(parsed.term)
+}
+
+// Single pass per entry: matching and weighting happen together so sorting
+// afterwards only compares pre-computed numbers instead of recomputing them.
+function match_entry(entry, parsed) {
+  let matched = matchesQuery(entry['name'], null, parsed)
+  let weight = matched ? 1 : 0
+
+  if (matchesQuery(entry['category'], null, parsed)) {
+    matched = true
+    weight += 1
+  }
+
+  for (const tag of entry['tags']) {
+    if (matchesQuery(tag['name'], tag['type'], parsed)) {
+      matched = true
+      weight += tag['weight']
+    }
+  }
+
+  return {matched, weight}
+}
+
+function run_search(raw) {
+  if (!raw) return data
+
+  const parsed = parse_query(raw)
+  const results = []
+
+  for (const entry of data) {
+    const {matched, weight} = match_entry(entry, parsed)
+    if (matched) results.push({entry, weight})
+  }
+
+  results.sort((a, b) => b.weight - a.weight)
+  return results.map(({entry}) => entry)
+}
+
+// Cached full result for the current query, so pagination during
+// infinite scroll just slices it instead of re-running the search.
+let search_result = data
 
 function make_search(append = true) {
 
-  const search_text = search.value.trim().toLowerCase();
-  let new_data = data
-
-  new_data.filter(item => make_match(item, search_text))
-
-  console.log(new_data)
-
-  if (append) {
-    let pushed = new_data.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
-    filtered_data.value = [...filtered_data.value, ...pushed]
-    added_icons = pushed.length
-  } else {
+  if (!append) {
+    search_result = run_search(String(search.value).trim().toLowerCase())
     page = 1
-    filtered_data.value = [...new_data.slice(0, page * ico_per_page)]
-    added_icons = ico_per_page
   }
+
+  let pushed = search_result.slice(Math.max(0, page - 1) * ico_per_page, page * ico_per_page)
+  filtered_data.value = append ? [...filtered_data.value, ...pushed] : pushed
+  added_icons = pushed.length
 
   setTimeout(() => {
     searching.value = search.value.length > 0
@@ -67,6 +118,12 @@ function check_list_size() {
 
 watch(search, (oldV, newV) => {
   icon_modal_vis.value = false
+
+  // Scroll back to the top now, while the old (taller) list is still
+  // rendered, so the shorter result set never has to yank the scroll
+  // position down when it replaces it a moment later.
+  window.scrollTo({top: 0, behavior: 'smooth'})
+
   clearTimeout(search_timeout);
   search_timeout = setTimeout(() => {
     requestAnimationFrame(() => {

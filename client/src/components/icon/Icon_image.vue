@@ -1,5 +1,5 @@
 <script setup>
-import {computed, inject, defineProps} from "vue";
+import {computed, inject} from "vue";
 
 let props = defineProps({
   icon_id: Number, scale_override: Number, scale_min: Number
@@ -13,7 +13,6 @@ let icon_scale = computed(() => {
   return settings.icon_scale
 })
 let icon_size = computed(() => `${120 * icon_scale.value}px`)
-let image_size = computed(() => `${100 * icon_scale.value}px`)
 
 let ico_atlas_pos = computed(() => {
   let id = props['icon_id'] - 1

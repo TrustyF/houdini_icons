@@ -1,5 +1,5 @@
 <script setup>
-import {computed, inject, nextTick, ref} from "vue";
+import {computed, inject} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import Icon_image from "@/components/icon/Icon_image.vue";
 import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
@@ -13,13 +13,6 @@ let props = defineProps({
 let emits = defineEmits(['close'])
 
 let alert_content = inject('alert_content')
-
-const searching = inject("searching");
-const settings = inject("settings");
-
-let icon_scale = computed(() => settings.icon_scale)
-let icon_size = computed(() => `${120 * icon_scale.value}px`)
-let image_size = computed(() => `${100 * icon_scale.value}px`)
 
 function add_to_clipboard() {
   let clip = `hicon:/SVGIcons.index?${props['data']['category']['name']}_${props['data']['name']['name']}.svg`
@@ -133,10 +126,8 @@ const position_style = computed(() => {
   border: #262626 3px solid;
   border-radius: 8px;
   user-select: none;
-  /*background-color: #1f1f1f;*/
-  background: linear-gradient(to bottom, rgba(31, 31, 31, 0.8) 25%, rgba(29, 38, 38, 1) 150%);
+  background: linear-gradient(to bottom, #1f1f1f 25%, #1d2626 150%);
   box-shadow: rgba(0, 0, 0, 0.9) 0 0 30px, rgba(0, 0, 0, 0.8) 0 0 50px;
-  backdrop-filter: blur(15px);
 }
 
 .sidebar {
@@ -246,17 +237,6 @@ const position_style = computed(() => {
   flex-flow: row wrap;
   gap: 5px;
   margin-top: 15px;
-}
-
-.click_zone {
-  z-index: 3;
-  /*outline: 1px solid red;*/
-  /*background-color: red;*/
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
 }
 
 </style>

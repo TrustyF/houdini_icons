@@ -1,12 +1,6 @@
 <script setup>
-import {inject, onMounted, watch, ref, computed} from "vue";
+import {inject} from "vue";
 
-let props = defineProps({
-  test: {
-    type: String,
-    default: null,
-  },
-});
 const search = inject("search");
 const searching = inject("searching");
 

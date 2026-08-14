@@ -4,7 +4,7 @@ export const get_session_seed = () => {
     return  String(crypto.randomUUID()) + "houdini-icons";
 }
 
-let server_url = ' https://analytics-trustyfox.pythonanywhere.com'
+let server_url = 'https://analytics-trustyfox.pythonanywhere.com'
 
 const get_geo = async () => {
 
