@@ -1,4 +1,4 @@
-import {pack, record} from "rrweb";
+import {record} from "rrweb";
 import {axios} from "@bundled-es-modules/axios";
 import {geo_location, get_session_seed} from "@/scripts/session.js";
 
@@ -19,7 +19,7 @@ async function send_batch(batch) {
     source: project,
     sid: get_session_seed(),
     geo: geo,
-    events: batch.map(pack)
+    events: batch
   }
 
   await axios.post(url, params).catch(() => {
@@ -62,7 +62,7 @@ export default {
         source: project,
         sid: get_session_seed(),
         geo: geo,
-        events: events.map(pack)
+        events: events
       }
       navigator.sendBeacon(url, new Blob([JSON.stringify(params)], {type: 'application/json'}));
       events = [];
