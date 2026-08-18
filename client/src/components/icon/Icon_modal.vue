@@ -15,7 +15,7 @@ let emits = defineEmits(['close'])
 let alert_content = inject('alert_content')
 
 function add_to_clipboard() {
-  let clip = `hicon:/SVGIcons.index?${props['data']['category']}_${props['data']['name']}.svg`
+  let clip = `hicon:/SVGIcons.index?${props.data.category}_${props.data.name}.svg`
   navigator.clipboard.writeText(clip);
 
   alert_content.value = {
@@ -25,8 +25,8 @@ function add_to_clipboard() {
 }
 
 function download_svg(data) {
-  let file = data['name']
-  let category = data['category']
+  let file = data.name
+  let category = data.category
   let path
 
   if (category.length < 1 || category === 'icons') path = `/icons/${file}.svg`

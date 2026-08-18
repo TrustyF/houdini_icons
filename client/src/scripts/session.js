@@ -1,7 +1,10 @@
 import {axios} from "@bundled-es-modules/axios";
 
+let session_seed = null;
+
 export const get_session_seed = () => {
-    return  String(crypto.randomUUID()) + "houdini-icons";
+    if (!session_seed) session_seed = String(crypto.randomUUID()) + "houdini-icons";
+    return session_seed;
 }
 
 let server_url = 'https://analytics-trustyfox.pythonanywhere.com'
