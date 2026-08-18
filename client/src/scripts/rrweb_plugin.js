@@ -9,10 +9,10 @@ let geo = null;
 let flushOnHide = null;
 let visibilityHandler = null;
 
-let server_url = 'https://analytics-trustyfox.pythonanywhere.com'
+let server_url = 'https://analytics.arthursirjacobs.com'
 let project = 'houdini_icons'
 
-let url = `${server_url}/session/add`
+let url = `${server_url}/api/session/add`
 
 async function send_batch(batch) {
   let params = {
