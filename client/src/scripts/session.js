@@ -3,7 +3,14 @@ import {axios} from "@bundled-es-modules/axios";
 let session_seed = null;
 
 export const get_session_seed = () => {
-    if (!session_seed) session_seed = String(crypto.randomUUID()) + "houdini-icons";
+    if (session_seed) return session_seed;
+
+    session_seed = sessionStorage.getItem('houdini_icons_sid');
+    if (!session_seed) {
+        session_seed = String(crypto.randomUUID()) + "houdini-icons";
+        sessionStorage.setItem('houdini_icons_sid', session_seed);
+    }
+
     return session_seed;
 }
 
