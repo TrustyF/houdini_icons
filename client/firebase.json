@@ -7,7 +7,7 @@
         "headers": [
           {
             "key": "Access-Control-Allow-Origin",
-            "value": "https://custom-event-parser.web.app"
+            "value": "https://analytics.arthursirjacobs.com/"
           },
           {
             "key": "Access-Control-Allow-Methods",
