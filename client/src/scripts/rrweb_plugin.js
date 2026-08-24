@@ -44,7 +44,7 @@ export default {
         mousemove: 50,
         mouseInteraction: true,
         scroll: 150,
-        input: 'last'
+        input: true
       },
       slimDOMOptions: 'all'
     });
