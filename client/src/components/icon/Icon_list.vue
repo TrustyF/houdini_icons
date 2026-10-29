@@ -27,7 +27,6 @@ const STRICT_PREFIXES = [
   {prefix: '#strict ', type: null},
   {prefix: '#color ', type: 'color'},
   {prefix: '#tag ', type: 'tag'},
-  {prefix: '#symbol ', type: 'symbol'},
   {prefix: '#shape ', type: 'shape'},
 ]
 

@@ -1,6 +1,90 @@
-import {shallowRef} from "vue";
+import {computed, ref, shallowRef, watch} from "vue";
+import versions from "@/assets/versions.json";
 
-export const icon_data = shallowRef([]);
+export {versions};
+
+// Not a Houdini version: shows every icon once, by its newest drawing
+export const ALL_VERSIONS = 'all';
+
+const VERSION_STORAGE_KEY = 'houdini_version';
+
+// A visitor's picked version, if it's still one we serve. Storage can be
+// unavailable (private windows, blocked site data), so it's best-effort.
+function stored_version() {
+  try {
+    const key = localStorage.getItem(VERSION_STORAGE_KEY);
+    return key === ALL_VERSIONS || versions.some((v) => v.key === key) ? key : null;
+  } catch {
+    return null;
+  }
+}
+
+// One entry per drawing: an icon redrawn between Houdini versions appears
+// once per drawing, each listing the versions (`versions`) that use it.
+const all_icons = shallowRef([]);
+
+export const selected_version = ref(stored_version() ?? versions.at(-1).key);
+
+watch(selected_version, (key) => {
+  try {
+    localStorage.setItem(VERSION_STORAGE_KEY, key);
+  } catch {
+    // Not remembered across visits, but the switch itself still works
+  }
+});
+
+const version_rank = Object.fromEntries(versions.map((v, i) => [v.key, i]));
+
+// "20.5", "22 (legacy UI)": the label without the repeated "Houdini"
+const version_label = (key) => versions.find((v) => v.key === key).label.replace(/^Houdini /, '');
+
+// Which versions use a drawing, as runs of consecutive versions: "21+" while
+// the newest version still has it, otherwise "19.5 – 20.5 only" (removed or
+// redrawn since).
+export function version_span(keys) {
+  const order = versions.map((v) => v.key);
+  const used = new Set(keys);
+  const runs = [];
+  order.forEach((key, i) => {
+    if (!used.has(key)) return;
+    if (runs.length && used.has(order[i - 1])) runs.at(-1).push(key);
+    else runs.push([key]);
+  });
+
+  const latest = order.at(-1);
+  return runs.map((run) => {
+    const [first, last] = [run[0], run.at(-1)];
+    // A run reaching the newest version from that release's legacy-UI set
+    // means "new in that release", in both UIs: name the release, not the skin
+    if (last === latest) return `${version_label(first.replace(/-legacy$/, ''))}+`;
+    return first === last ? `${version_label(first)} only` : `${version_label(first)} – ${version_label(last)} only`;
+  }).join(', ');
+}
+
+export const version_list = (keys) => `Used in: ${keys.map((key) => `Houdini ${version_label(key)}`).join(', ')}`;
+
+// Every icon once, by the drawing used in its newest version (so icons
+// Houdini has since removed show their last drawing)
+function newest_drawings(entries) {
+  const newest = new Map();
+  for (const entry of entries) {
+    const key = `${entry.category}/${entry.name}`;
+    const rank = Math.max(...entry.versions.map((v) => version_rank[v]));
+    if (!newest.has(key) || rank > newest.get(key).rank) newest.set(key, {entry, rank});
+  }
+  const keep = new Set([...newest.values()].map(({entry}) => entry));
+  return entries.filter((entry) => keep.has(entry));
+}
+
+// Each version uses at most one drawing per icon, so this is that version's icon set
+export const icon_data = computed(() => {
+  if (selected_version.value === ALL_VERSIONS) return newest_drawings(all_icons.value);
+  return all_icons.value.filter((entry) => entry.versions.includes(selected_version.value));
+});
+
+// By id (= atlas cell), whatever version is selected
+export const icon_by_id = computed(() => new Map(all_icons.value.map((entry) => [entry.id, entry])));
+
 export const icon_data_ready = shallowRef(false);
 
 async function fetch_json(url) {
@@ -24,6 +108,9 @@ function validate_icon_entries(items, source) {
     }
     if (typeof entry.category !== 'string') {
       throw new Error(`Invalid icon database entry at ${where}: 'category' must be a string, got ${JSON.stringify(entry.category)}`);
+    }
+    if (!Array.isArray(entry.versions) || entry.versions.length < 1) {
+      throw new Error(`Invalid icon database entry at ${where}: 'versions' must be a non-empty array, got ${JSON.stringify(entry.versions)}`);
     }
     if (!Array.isArray(entry.tags)) {
       throw new Error(`Invalid icon database entry at ${where}: 'tags' must be an array, got ${JSON.stringify(entry.tags)}`);
@@ -49,13 +136,13 @@ async function load() {
   const manifest = await fetch_json(`${import.meta.env.BASE_URL}database/manifest.json`);
   const [first, ...rest] = manifest.chunks;
 
-  icon_data.value = validate_icon_entries(await fetch_json(`${import.meta.env.BASE_URL}database/${first}`), first);
+  all_icons.value = validate_icon_entries(await fetch_json(`${import.meta.env.BASE_URL}database/${first}`), first);
   icon_data_ready.value = true;
   resolve_ready();
 
   for (const chunk of rest) {
     const items = validate_icon_entries(await fetch_json(`${import.meta.env.BASE_URL}database/${chunk}`), chunk);
-    icon_data.value = [...icon_data.value, ...items];
+    all_icons.value = [...all_icons.value, ...items];
   }
 }
 

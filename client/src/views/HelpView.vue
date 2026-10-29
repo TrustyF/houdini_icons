@@ -21,7 +21,7 @@
         <h1>Search</h1>
         <p>Icons can be found by searching for name, tags, color or shape. By default the search will return the most
           relevant result. </p>
-        <p>You can specify a more strict search by using #tag, #color, #symbol or #shape</p>
+        <p>You can specify a more strict search by using #tag, #color or #shape</p>
         <img src="/help_images/img_2.webp" alt="" class="image_block">
       </div>
     </div>

@@ -1,5 +1,7 @@
 <script setup>
 import {computed, inject} from "vue";
+// Content-hashed atlas file names, one per 100-icon page (see index_images.make_atlas)
+import atlas_pages from "@/assets/atlas.json";
 
 let props = defineProps({
   icon_id: Number, scale_override: Number, scale_min: Number
@@ -35,7 +37,7 @@ let ico_atlas = computed(() => {
   let id = props['icon_id'] - 1
 
   let cus_id = Math.floor(id / 100)
-  let str_url = `/atlas/atlas_${cus_id}.webp`
+  let str_url = `/atlas/${atlas_pages[cus_id]}`
 
   return `url(${str_url})`
 })

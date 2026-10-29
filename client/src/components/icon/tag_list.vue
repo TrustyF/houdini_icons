@@ -23,7 +23,6 @@ function get_color_from_type(type) {
   const lig = 20
   if (type === 'tag') return `hsl(0,${sat}%,${lig}%)`
   if (type === 'shape') return `hsl(107,${sat}%,${lig}%)`
-  if (type === 'symbol') return `hsl(185,${sat}%,${lig}%)`
   if (type === 'color') return `hsl(284,${sat}%,${lig}%)`
 }
 

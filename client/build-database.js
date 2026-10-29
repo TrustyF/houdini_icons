@@ -1,5 +1,5 @@
 // build-database.js
-// Strips fields unused by the client (icon "image", tag "id") and splits the
+// Strips fields unused by the client (tag "id") and splits the
 // result into content-hashed chunks under public/database/, fetched
 // progressively at runtime instead of bundled into the JS or downloaded as
 // one multi-MB blob. Hashed filenames also mean a stale browser cache can't
@@ -14,7 +14,7 @@ const OUT_DIR = './public/database';
 const raw = fs.readFileSync('./src/assets/database.json', 'utf-8');
 const data = JSON.parse(raw);
 
-const trimmed = data.map(({image, ...entry}) => ({
+const trimmed = data.map((entry) => ({
   ...entry,
   tags: entry.tags.map(({id, ...tag}) => tag),
 }));

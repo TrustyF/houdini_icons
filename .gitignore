@@ -2,3 +2,12 @@
 /scripts/.venv/
 /scripts/.idea/
 /.idea/
+__pycache__/
+
+# SideFX's icons.zip per Houdini version (~120 MB of their artwork);
+# scripts/icon_versions.py reads them locally
+/icons/
+
+# Database backups the scripts make before each migration or re-tag
+/scripts/assets/*_BAK*.db
+/database_BAK.json

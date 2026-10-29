@@ -3,6 +3,7 @@ import {computed, inject} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import Icon_image from "@/components/icon/Icon_image.vue";
 import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
+import {version_span, version_list} from "@/scripts/database.js";
 
 let props = defineProps({
   position: Object,
@@ -44,6 +45,9 @@ function download_svg(data) {
   }));
   document.body.removeChild(a);
 }
+
+const version_note = computed(() => `Available in Houdini ${version_span(props.data.versions)}`)
+const version_title = computed(() => version_list(props.data.versions))
 
 function close(e) {
   if (props.visibility === true) emits('close')
@@ -129,6 +133,8 @@ const position_style = computed(() => {
       <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="1"/>
       <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="2"/>
     </div>
+
+    <div class="version_note" :title="version_title">{{ version_note }}</div>
 
   </div>
 </template>
@@ -260,6 +266,13 @@ const position_style = computed(() => {
   flex-flow: row wrap;
   gap: 5px;
   margin-top: 15px;
+}
+
+.version_note {
+  margin-top: 12px;
+  color: #808080;
+  font-size: 0.75em;
+  line-height: 1.2;
 }
 
 </style>

@@ -1,11 +1,25 @@
 <script setup>
 import {inject} from "vue";
+import {versions, selected_version, ALL_VERSIONS} from "@/scripts/database.js";
 
 const settings = inject("settings");
+
+// Newest first, without the repeated "Houdini" (the label says it), then "All"
+const version_options = [
+  ...[...versions].reverse().map((v) => ({key: v.key, label: v.label.replace(/^Houdini /, '')})),
+  {key: ALL_VERSIONS, label: 'All'},
+];
 
 </script>
 
 <template>
+  <span class="setting_group">
+    <label for="version_select" class="label">Houdini</label>
+    <select id="version_select" v-model="selected_version">
+      <option v-for="v in version_options" :key="v.key" :value="v.key">{{ v.label }}</option>
+    </select>
+  </span>
+
   <span class="setting_group">
     <label for="icon_toggle" class="label">Icon only</label>
     <input id="icon_toggle" type="checkbox" v-model="settings.icon_only">
@@ -71,6 +85,39 @@ const settings = inject("settings");
   border: solid #e6e6e6;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+#version_select {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  padding: 3px 24px 3px 8px;
+
+  border: 1px solid #4d4d4d;
+  border-radius: 4px;
+  /* Chevron drawn with two gradients, so the arrow matches the dark skin too */
+  background-color: #1f1f1f;
+  background-image: linear-gradient(45deg, transparent 50%, #b3b3b3 50%),
+  linear-gradient(-45deg, transparent 50%, #b3b3b3 50%);
+  background-position: calc(100% - 12px) 55%, calc(100% - 7px) 55%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  color: #e6e6e6;
+  font: inherit;
+  cursor: pointer;
+
+  transition: border-color 150ms;
+}
+
+#version_select:hover,
+#version_select:focus-visible {
+  border-color: #6a93b8;
+  outline: none;
+}
+
+#version_select option {
+  background-color: #1f1f1f;
+  color: #e6e6e6;
 }
 
 #icon_size {

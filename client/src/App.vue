@@ -2,8 +2,9 @@
 import {RouterView} from 'vue-router'
 import {defineAsyncComponent, provide, reactive, ref} from "vue";
 import Navbar from "@/components/generic/navbar.vue";
-import {icon_data} from "@/scripts/database.js";
+import {icon_by_id} from "@/scripts/database.js";
 import Icon_modal from "@/components/icon/Icon_modal.vue";
+import atlas_pages from "@/assets/atlas.json";
 
 let NotificationModal = defineAsyncComponent(() => import("@/components/generic/notificationModal.vue"))
 
@@ -39,12 +40,12 @@ function icon_modal_close() {
 </script>
 
 <template>
-  <img src="/atlas/atlas_0.webp" fetchpriority="high" style="display: none" alt=""/>
-  <img src="/atlas/atlas_1.webp" fetchpriority="high" style="display: none" alt=""/>
+  <img v-for="page in atlas_pages.slice(0, 2)" :key="page" :src="`/atlas/${page}`" fetchpriority="high"
+       style="display: none" alt=""/>
 
   <icon_modal :position="icon_modal_pos"
               :visibility="icon_modal_vis"
-              :data="icon_data[icon_modal_id-1]"
+              :data="icon_by_id.get(icon_modal_id)"
               @close="icon_modal_close"
   />
 

@@ -33,3 +33,11 @@ coverage
 /public/atlas/
 /public/database/
 /.firebaserc
+/.firebase/
+
+# Generated alongside /public/atlas/ and /public/database/: by
+# scripts/index_images.py (dump_json, make_atlas) and build-manifest.js
+/src/assets/database.json
+/src/assets/atlas.json
+/src/assets/versions.json
+/public/manifest.json
