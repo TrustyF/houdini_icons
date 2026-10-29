@@ -30,7 +30,7 @@
         <div class="bi-exclamation-circle"/>
         <p>Issue</p>
       </a>
-      <a class="github-button collapse_on_mobile" href="https://arthur-sirjacobs.art/" target="_blank"
+      <a class="github-button collapse_on_mobile" href="https://arthursirjacobs.com/" target="_blank"
          rel="noopener noreferrer" title="Arthur Sirjacobs" aria-label="Arthur Sirjacobs">
         <div class="bi-person-fill"/>
         <p>Arthur Sirjacobs</p>
