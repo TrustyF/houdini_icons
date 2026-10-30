@@ -127,9 +127,54 @@ def parse_tags(message, count):
         raise RuntimeError(f'stopped with {message.stop_reason}: {getattr(message, "stop_details", None)}')
     data = json.loads(next(b.text for b in message.content if b.type == "text"))
     by_image = {e["image"]: e for e in data["icons"]}
-    return [{kind: [[name, order_weight(n)] for n, name in enumerate(by_image[k][kind][:limit])]
-             for kind, limit in TAG_LIMITS.items()} if k in by_image else None
+    return [weighted(clean_tags({kind: by_image[k][kind] for kind in TAG_LIMITS})) if k in by_image else None
             for k in range(1, count + 1)]
+
+
+# Words the prompt rules out that still slip through now and then
+BANNED_TAGS = {"icon", "icons", "symbol", "symbols", "logo", "logos", "houdini", "button", "buttons"}
+
+# Tags added by hand, on every drawing of these icons, after the model's
+# tags are cleaned (so a banned word like "houdini" can still be given on purpose)
+MANUAL_TAGS = {
+    "houdini": [
+        # The Houdini logo itself
+        ("MISC", "logo"), ("MISC", "logo_white"),
+        ("DESKTOP", "application"), ("DESKTOP", "application2"), ("DESKTOP", "application_bigsur"),
+        ("DESKTOP", "application_mac"), ("DESKTOP", "application_sierra"),
+        # Icons with the logo as part of a larger picture
+        ("ENGINE", "open_in_houdini"), ("TOP", "houdiniserver"), ("TOP", "houdiniserverstop"),
+        ("COMMON", "houdinimaterialx"), ("DESKTOP", "hip"), ("DESKTOP", "hipnc"),
+        ("SCENEGRAPH", "primtype_houdinifieldasset"), ("SCENEGRAPH", "selection_rule_houdini"),
+    ],
+}
+
+
+def clean_tags(names):
+    """Enforces the prompt rules the model occasionally breaks, on
+    {kind: [name, ...]} in relevance order: drops banned words, and moves
+    color words out of tags/shapes into colors (while there's room)."""
+    colors = [validate_name(c) for c in names["colors"]]
+    out = {}
+    for kind in ("tags", "shapes"):
+        out[kind] = []
+        for name in names[kind]:
+            word = validate_name(name)
+            if word in BANNED_TAGS:
+                continue
+            if word in TAG_COLORS:
+                if word not in colors and len(colors) < TAG_LIMITS["colors"]:
+                    colors.append(word)
+                continue
+            out[kind].append(name)
+    out["colors"] = colors
+    return out
+
+
+def weighted(names):
+    """{kind: [[name, weight], ...]} from relevance-ordered names, trimmed to TAG_LIMITS."""
+    return {kind: [[name, order_weight(n)] for n, name in enumerate(names[kind][:limit])]
+            for kind, limit in TAG_LIMITS.items()}
 
 
 def request_tags_now(items):
@@ -254,6 +299,54 @@ def current_tags(icon):
     return {kind: [[a.tag.name, a.weight] for a in icon.tags if a.type + 's' == kind] for kind in TAG_LIMITS}
 
 
+def apply_manual_tags():
+    """Gives every drawing of the icons in MANUAL_TAGS its hand-picked tags,
+    as their most relevant tag (weight 1.0)."""
+    added = 0
+    for word, keys in MANUAL_TAGS.items():
+        t = session.query(Tag).filter_by(name=word).one_or_none()
+        if not t:
+            t = Tag(name=word)
+            session.add(t)
+            session.flush()
+        for category, name in keys:
+            icons = session.query(Icon).filter_by(category=category, name=name).all()
+            if not icons:
+                log.info(f'manual tag "{word}": no icon {category}/{name}')
+            for icon in icons:
+                if not any(a.tag_id == t.id and a.type == 'tag' for a in icon.tags):
+                    session.add(IconTagAssoc(icon=icon, tag=t, type='tag', weight=1.0))
+                    added += 1
+    session.commit()
+    log.info(f'added {added} manual tags')
+
+
+def clean_existing_tags():
+    """Runs clean_tags over tags already in the database (no model calls)."""
+    backup = DB_PATH.replace('.db', f'_BAK_{date.today():%Y%m%d}_pre_tag_cleanup.db')
+    shutil.copy(DB_PATH, backup)
+    log.info(f'backed up database to {backup}')
+
+    changed = 0
+    for icon in session.query(Icon).order_by(Icon.id).all():
+        if not icon.tags:
+            continue
+        names = {kind: [name for name, _ in sorted(pairs, key=lambda p: -p[1])]
+                 for kind, pairs in current_tags(icon).items()}
+        cleaned = clean_tags(names)
+        if cleaned != names:
+            set_tags(icon, weighted(cleaned))
+            changed += 1
+    session.commit()
+
+    orphans = session.query(Tag).filter(~Tag.icons.any()).all()
+    for t in orphans:
+        session.delete(t)
+    session.commit()
+    log.info(f'cleaned tags on {changed} drawings, {len(orphans)} unused words removed')
+    apply_manual_tags()
+
+
 def tag_icons(from_scratch=False, limit=None):
     """Tags every untagged drawing.
 
@@ -344,6 +437,7 @@ def tag_icons(from_scratch=False, limit=None):
         session.delete(t)
     session.commit()
     log.info(f'done: {len(requests) - failed} tagged, {failed} failed, {len(orphans)} unused tags removed')
+    apply_manual_tags()
 
 
 def dump_json():

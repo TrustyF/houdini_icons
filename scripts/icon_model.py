@@ -96,14 +96,14 @@ class IconVersion(Base):
         return f"<IconVersion(icon={self.icon_id},{self.version})>"
 
 
-# The tagger (GPT, in index_images.py) has no controlled vocabulary — it
-# free-texts a name per tag, so it happily produces both spellings of the
-# same concept across different icons (e.g. "grey" on one, "gray" on
-# another) since neither collides with the other after basic
+# The tagger (Claude, in index_images.py) has no controlled vocabulary for
+# tags and shapes — it free-texts a name per entry, so it can produce both
+# spellings of the same concept across different icons (e.g. "grey" on one,
+# "gray" on another) since neither collides with the other after basic
 # strip/lower/underscore normalization. Collapsing known synonyms onto one
-# canonical spelling here means every write path (index_images.py,
-# cleanup_db.py, ad-hoc scripts) merges them into a single Tag row instead
-# of silently fragmenting search/filtering.
+# canonical spelling here means every write path (index_images.py, ad-hoc
+# scripts) merges them into a single Tag row instead of silently
+# fragmenting search/filtering.
 TAG_SYNONYMS = {
     'grey': 'gray',
     'doughnut': 'donut',

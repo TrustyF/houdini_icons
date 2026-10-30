@@ -3,7 +3,7 @@ import {computed, inject} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import Icon_image from "@/components/icon/Icon_image.vue";
 import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
-import {version_span, version_list} from "@/scripts/database.js";
+import {version_span, version_list, icon_houdini_name} from "@/scripts/database.js";
 
 let props = defineProps({
   position: Object,
@@ -15,9 +15,10 @@ let emits = defineEmits(['close'])
 
 let alert_content = inject('alert_content')
 
+const houdini_name = computed(() => icon_houdini_name(props.data))
+
 function add_to_clipboard() {
-  let clip = `hicon:/SVGIcons.index?${props.data.category}_${props.data.name}.svg`
-  navigator.clipboard.writeText(clip);
+  navigator.clipboard.writeText(houdini_name.value);
 
   alert_content.value = {
     title: 'Copied!',
@@ -118,7 +119,7 @@ const position_style = computed(() => {
 
     <div class="icon_path_box" @click="add_to_clipboard">
       <div class="bi-copy"/>
-      <div>{{ `${data['category']}_${data['name']}.svg` }}
+      <div>{{ houdini_name }}
       </div>
     </div>
 

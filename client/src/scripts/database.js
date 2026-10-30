@@ -61,6 +61,15 @@ export function version_span(keys) {
   }).join(', ');
 }
 
+// The name Houdini knows the icon by, e.g. BUTTONS_folder (matches its icon
+// index, checked against Houdini 22's): CATEGORY_name, except CONVERTED
+// icons have no prefix and Pics use PICS_
+export function icon_houdini_name({category, name}) {
+  if (category === 'CONVERTED') return name;
+  if (category === 'Pics') return `PICS_${name}`;
+  return `${category}_${name}`;
+}
+
 export const version_list = (keys) => `Used in: ${keys.map((key) => `Houdini ${version_label(key)}`).join(', ')}`;
 
 // Every icon once, by the drawing used in its newest version (so icons
