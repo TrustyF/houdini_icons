@@ -1,92 +1,239 @@
-<script setup>
-
-</script>
-
 <template>
-  <div class="info_wrapper">
+  <div class="help_wrapper">
 
-    <div class="text_wrapper">
-      <div class="text_block">
-        <h1>Using icons</h1>
-        <p>Copy the given icon name to the "icon" field of your HDA. Either the full path or just the file name should
-          work.</p>
-        <img src="/help_images/img_1.webp" alt="" class="image_block">
+    <header class="intro">
+      <h1>FAQ</h1>
+    </header>
 
+    <section>
+      <div class="faq_item">
+        <h2>How do I use the icons?</h2>
+        <div class="faq_body">
+          <p>Click an icon to expand it, then click its name to copy it. Paste it into the <strong>Icon</strong> field
+            of your HDA's Type Properties.</p>
+          <p class="hint">Either the full path or just the file name works.</p>
+          <img src="/help_images/img_1.webp" alt="Copying an icon name into an HDA's icon field" class="image_block">
+        </div>
       </div>
 
-    </div>
+      <div class="faq_item">
+        <h2>I can't find an icon, or it's missing in my Houdini</h2>
+        <div class="faq_body">
+          <p>Not every icon exists in every version of Houdini. SideFX adds, removes and redraws icons between
+            releases, so an icon you find here may be missing or look different in the version you use.</p>
 
-    <div class="text_wrapper">
-      <div class="text_block">
-        <h1>Search</h1>
-        <p>Icons can be found by searching for name, tags, color or shape. By default the search will return the most
-          relevant result. </p>
-        <p>You can specify a more strict search by using #tag, #color or #shape</p>
-        <img src="/help_images/img_2.webp" alt="" class="image_block">
-      </div>
-    </div>
+          <p>Use the <strong>Houdini</strong> dropdown in the settings bar to only show the icons of your version.
+            <strong>All</strong> shows every icon ever shipped, each in its newest drawing.</p>
 
-    <div class="text_wrapper">
-      <div class="text_block">
-        <h1>Tag bubbles</h1>
-        <p>Clicking on any of the tag bubbles of an icon will autofill the search bar</p>
-        <img src="/help_images/img_3.webp" alt="" class="image_block">
+          <p>To check a single icon, expand it and look at the label at the bottom of the card:</p>
+
+          <div class="version_demo">
+            <div class="demo_card">
+              <div class="demo_row"/>
+              <div class="demo_row short"/>
+              <div class="demo_label">Available in Houdini 21+</div>
+            </div>
+            <div class="demo_callout">the version label</div>
+          </div>
+
+          <p class="hint">Hover the label to see the full list of versions.</p>
+        </div>
       </div>
-    </div>
+
+      <div class="faq_item">
+        <h2>My search returns nothing, or odd results</h2>
+        <div class="faq_body">
+          <p>Try a single, simple word, and drop any <code>#tag</code> / <code>#color</code> / <code>#shape</code>
+            prefix, since those only match exactly. If that still finds nothing, set the <strong>Houdini</strong>
+            dropdown to <strong>All</strong>: the icon may not exist in the version you picked.</p>
+          <p>Most tags are generated automatically, so some will be missing or a bit off. If you spot a wrong tag or
+            a search that should have found something, please
+            <a href="https://github.com/TrustyF/houdini_icons/issues" target="_blank" rel="noopener noreferrer">report
+              it on GitHub</a>.</p>
+        </div>
+      </div>
+
+      <div class="faq_item">
+        <h2>Where are the icons located?</h2>
+        <div class="faq_body">
+          <p>Houdini keeps its icons in a single <code>icons.zip</code>, inside <code>houdini/config/Icons</code> of
+            the install folder (<code>$HFS</code>). With a default install, that's:</p>
+          <dl class="path_list">
+            <dt>Windows</dt>
+            <dd><code>C:\Program Files\Side Effects Software\Houdini 21.0.xxx\houdini\config\Icons\icons.zip</code></dd>
+            <dt>macOS</dt>
+            <dd><code>/Applications/Houdini/Houdini21.0.xxx/Frameworks/Houdini.framework/Versions/Current/Resources/houdini/config/Icons/icons.zip</code></dd>
+            <dt>Linux</dt>
+            <dd><code>/opt/hfs21.0.xxx/houdini/config/Icons/icons.zip</code></dd>
+          </dl>
+          <p class="hint">Replace <code>21.0.xxx</code> with your installed version.</p>
+        </div>
+      </div>
+    </section>
+
   </div>
 </template>
 
 <style scoped>
-.info_wrapper {
+.help_wrapper {
   display: flex;
   flex-flow: column;
-
-  justify-items: center;
-  justify-content: center;
-  align-items: center;
-  margin: 50px 0 150px 0;
-  gap: 100px;
-  /*padding: 0;*/
-  position: relative;
-  color: white;
-}
-
-.text_wrapper {
-  display: flex;
-  flex-flow: column;
-  gap: 70px;
-  max-width: 1000px;
-  /*width: 70%;*/
-}
-
-.text_block {
-  /*font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";*/
-  font-size: 1em;
-  line-height: 1.5;
-  word-wrap: break-word;
-  font-weight: 400;
+  gap: 20px;
+  max-width: 760px;
+  margin: 50px auto 150px auto;
+  padding: 0 16px;
+  color: #e6edf3;
+  line-height: 1.65;
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 2.2em;
   font-weight: 700;
-  margin-bottom: 15px;
 }
 
-p {
-  font-size: 1em;
-  color: #e6edf3;
+section p {
+  margin-bottom: 14px;
+  max-width: 65ch;
+}
+
+strong {
+  color: white;
+  font-weight: 600;
+}
+
+.hint {
+  color: #9a9a9a;
+  font-size: 0.9em;
+}
+
+code {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.9em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #151515;
+  border: 1px solid #333333;
+  color: #e6e6e6;
+  font-weight: 400;
+  white-space: nowrap;
 }
 
 .image_block {
-  /*outline: 1px solid red;*/
-  margin: 15px 0 15px 0;
+  display: block;
+  margin: 22px 0 0 0;
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
-  /*border: 2px solid rgba(69, 69, 69, 0.5);*/
-  /*height: 350px;*/
   border-radius: 8px;
 }
 
+/* A stripped-down expanded card, pointing at the real card's version label */
+.version_demo {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin: 14px 0 18px 0;
+}
+
+.demo_card {
+  display: flex;
+  flex-flow: column;
+  gap: 8px;
+  width: 240px;
+  padding: 14px;
+  border-radius: 8px;
+  background-color: #151515;
+  border: 1px solid #333333;
+}
+
+.demo_row {
+  height: 10px;
+  border-radius: 4px;
+  background-color: #2e2e2e;
+}
+
+.demo_row.short {
+  width: 60%;
+}
+
+/* Same look as .version_note in Icon_modal.vue, highlighted */
+.demo_label {
+  margin-top: 4px;
+  padding: 2px 6px;
+  align-self: flex-start;
+  color: #808080;
+  font-size: 0.75em;
+  line-height: 1.2;
+  border-radius: 4px;
+  outline: 2px solid #6a93b8;
+  outline-offset: 2px;
+}
+
+.path_list {
+  display: flex;
+  flex-flow: column;
+  gap: 4px;
+  margin: 4px 0 12px 0;
+}
+
+.path_list dt {
+  margin-top: 8px;
+  color: #b3b3b3;
+  font-size: 0.85em;
+}
+
+/* Paths are long: let them wrap anywhere instead of overflowing the panel */
+.path_list code {
+  display: block;
+  padding: 6px 10px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+/* FAQ: every question listed open, split by a hairline */
+.faq_item + .faq_item {
+  border-top: 1px solid #2a2a2a;
+}
+
+.faq_item h2 {
+  padding: 32px 0 14px 0;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Answers sit a step dimmer than their question, so the questions stand out */
+/* The wrapper's gap already spaces the first question from the title */
+.faq_item:first-child h2 {
+  padding-top: 0;
+}
+
+.faq_body {
+  padding: 0 0 32px 0;
+  color: #c2c8ce;
+}
+
+.faq_body a {
+  color: #6a93b8;
+}
+
+.demo_callout {
+  color: #6a93b8;
+  font-size: 0.9em;
+  padding-bottom: 8px;
+}
+
+.demo_callout::before {
+  content: '← ';
+}
+
+/* The callout wraps under the card on narrow screens, so point up instead */
+@media (max-width: 520px) {
+  .demo_callout::before {
+    content: '↑ ';
+  }
+}
 </style>
