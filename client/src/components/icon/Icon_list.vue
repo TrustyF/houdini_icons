@@ -2,6 +2,7 @@
 import {icon_data, icon_data_ready, icon_data_promise} from "@/scripts/database.js";
 import {inject, onMounted, onUnmounted, ref, watch, shallowRef, computed} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
+import tag_synonyms from "@/assets/tag_synonyms.json";
 
 let search_timeout;
 const filtered_data = shallowRef([])
@@ -30,33 +31,13 @@ const STRICT_PREFIXES = [
   {prefix: '#shape ', type: 'shape'},
 ]
 
-// The tagging pipeline canonicalizes spelling/formatting variants onto one
-// name (e.g. "grey" -> "gray", "push pin" -> "pushpin", see icon_model.py's
-// TAG_SYNONYMS) so they merge into a single tag instead of fragmenting
-// search. Mirror that here so a query using a non-canonical variant still
-// matches instead of silently returning zero results. Whole-term lookup
-// (not per-word) since some of these are phrase-level swaps where the
-// word count itself changes, e.g. "userinterface" (one word) <->
-// "user interface" (two words).
-const SEARCH_SYNONYMS = {
-  grey: 'gray',
-  doughnut: 'donut',
-  'push pin': 'pushpin',
-  userinterface: 'user interface',
-  'user-interface': 'user interface',
-  pixelart: 'pixel art',
-  videogame: 'video game',
-  roundedrectangle: 'rounded rectangle',
-  'rounded-rectangle': 'rounded rectangle',
-  'semi-circle': 'semicircle',
-  'curly brace': 'curlybrace',
-  lightblue: 'light blue',
-  'light-blue': 'light blue',
-  lightgreen: 'light green',
-  darkgreen: 'dark green',
-  darkblue: 'dark blue',
-  'dark-blue': 'dark blue',
-}
+// The tagging pipeline stores spelling variants under one name (e.g. "grey"
+// -> "gray", "arrows" -> "arrow"), from the same file (see icon_model.py's
+// TAG_SYNONYMS). Applying it to the query too means a variant still finds
+// its tag: "arrows" would otherwise match nothing tagged "arrow". Whole-term
+// lookup (not per-word) since some swaps change the word count, e.g.
+// "userinterface" <-> "user interface".
+const SEARCH_SYNONYMS = tag_synonyms
 
 // Prefix is parsed once per search instead of once per field per entry.
 function parse_query(raw) {
@@ -73,7 +54,8 @@ function parse_query(raw) {
 }
 
 function canonicalize_term(term) {
-  return SEARCH_SYNONYMS[term] ?? term
+  // hasOwn: a plain lookup would turn "constructor" into Object's function
+  return Object.hasOwn(SEARCH_SYNONYMS, term) ? SEARCH_SYNONYMS[term] : term
 }
 
 function matchesQuery(value, type, parsed) {

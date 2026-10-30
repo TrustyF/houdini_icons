@@ -15,7 +15,7 @@ import numpy as np
 from dotenv import load_dotenv
 from PIL import Image
 from db_loader import session
-from icon_model import Tag, Icon, IconTagAssoc, TAG_SYNONYMS, VERSIONS
+from icon_model import Tag, Icon, IconTagAssoc, VERSIONS, canonical_tag
 from icon_render import render_svg, atlas_image, changed_fraction, ATLAS_CELL
 
 log = logging.getLogger('custom')
@@ -154,12 +154,12 @@ def clean_tags(names):
     """Enforces the prompt rules the model occasionally breaks, on
     {kind: [name, ...]} in relevance order: drops banned words, and moves
     color words out of tags/shapes into colors (while there's room)."""
-    colors = [validate_name(c) for c in names["colors"]]
+    colors = [canonical_tag(c) for c in names["colors"]]
     out = {}
     for kind in ("tags", "shapes"):
         out[kind] = []
         for name in names[kind]:
-            word = validate_name(name)
+            word = canonical_tag(name)
             if word in BANNED_TAGS:
                 continue
             if word in TAG_COLORS:
@@ -222,16 +222,6 @@ def request_tags_batched(chunks, poll_seconds=30):
     return results
 
 
-def validate_name(name):
-    # Mirror Tag.val's normalization exactly, synonym collapse included —
-    # otherwise this pre-insert existence check looks up the raw name
-    # (e.g. "grey") while the DB only has the canonical one ("gray"),
-    # finds nothing, and tries to insert a duplicate that Tag.val would
-    # resolve to the same already-unique name.
-    name = name.strip().lower().replace('_', '')
-    return TAG_SYNONYMS.get(name, name)
-
-
 def is_blank(img):
     return not (np.asarray(img)[..., 3] > 32).any()
 
@@ -283,7 +273,7 @@ def set_tags(icon, tags):
     added = set()
     for kind, pairs in tags.items():
         for name, weight in pairs:
-            name = validate_name(name)
+            name = canonical_tag(name)
             t = session.query(Tag).filter_by(name=name).one_or_none()
             if not t:
                 t = Tag(name=name)

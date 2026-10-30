@@ -1,4 +1,5 @@
 import os
+import json
 import zipfile
 import threading
 
@@ -97,32 +98,24 @@ class IconVersion(Base):
 
 
 # The tagger (Claude, in index_images.py) has no controlled vocabulary for
-# tags and shapes — it free-texts a name per entry, so it can produce both
-# spellings of the same concept across different icons (e.g. "grey" on one,
-# "gray" on another) since neither collides with the other after basic
-# strip/lower/underscore normalization. Collapsing known synonyms onto one
-# canonical spelling here means every write path (index_images.py, ad-hoc
-# scripts) merges them into a single Tag row instead of silently
-# fragmenting search/filtering.
-TAG_SYNONYMS = {
-    'grey': 'gray',
-    'doughnut': 'donut',
-    'push pin': 'pushpin',
-    'userinterface': 'user interface',
-    'user-interface': 'user interface',
-    'pixelart': 'pixel art',
-    'videogame': 'video game',
-    'roundedrectangle': 'rounded rectangle',
-    'rounded-rectangle': 'rounded rectangle',
-    'semi-circle': 'semicircle',
-    'curly brace': 'curlybrace',
-    'lightblue': 'light blue',
-    'light-blue': 'light blue',
-    'lightgreen': 'light green',
-    'darkgreen': 'dark green',
-    'darkblue': 'dark blue',
-    'dark-blue': 'dark blue',
-}
+# tags and shapes — it free-texts a name per entry, so it can produce several
+# spellings of one concept across different icons ("grey"/"gray",
+# "arrows"/"arrow", "low-poly"/"lowpoly"). This {variant: canonical} map,
+# shared with the client's search, collapses them onto one Tag row on every
+# write path. A word mapped to itself is canonical as is (e.g. "glasses" is
+# not the plural of "glass"). tag_synonyms.py adds the variants it finds in
+# the database and merges existing rows.
+SYNONYMS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'client', 'src', 'assets',
+                             'tag_synonyms.json')
+
+with open(SYNONYMS_PATH) as f:
+    TAG_SYNONYMS = json.load(f)
+
+
+def canonical_tag(name):
+    """The single spelling a tag name is stored and searched under."""
+    name = name.strip().lower().replace('_', '')
+    return TAG_SYNONYMS.get(name, name)
 
 
 class Tag(Base):
@@ -137,8 +130,7 @@ class Tag(Base):
 
     @validates('name')
     def val(self, key, value):
-        value = value.strip().lower().replace('_', '')
-        return TAG_SYNONYMS.get(value, value)
+        return canonical_tag(value)
 
     def __repr__(self):
         return f"<Tag({self.id},{self.name})>"
