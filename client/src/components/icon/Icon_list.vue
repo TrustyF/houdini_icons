@@ -3,6 +3,7 @@ import {icon_data, icon_data_ready, icon_data_promise} from "@/scripts/database.
 import {inject, onMounted, onUnmounted, ref, watch, shallowRef, computed} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
 import tag_synonyms from "@/assets/tag_synonyms.json";
+import tag_related from "@/assets/tag_related.json";
 
 let search_timeout;
 const filtered_data = shallowRef([])
@@ -39,6 +40,19 @@ const STRICT_PREFIXES = [
 // "userinterface" <-> "user interface".
 const SEARCH_SYNONYMS = tag_synonyms
 
+// Words that aren't the same tag but that a search for one should also show
+// ("rope" also finds "wire", "cable"), from scripts/tag_synonyms.py. They
+// rank below direct matches, and only a whole-word query expands, so typing
+// a partial word doesn't pull in a group.
+const RELATED_WEIGHT = 0.5
+const RELATED = new Map()
+for (const group of tag_related) {
+  for (const word of group) {
+    if (!RELATED.has(word)) RELATED.set(word, new Set())
+    for (const other of group) if (other !== word) RELATED.get(word).add(other)
+  }
+}
+
 // Prefix is parsed once per search instead of once per field per entry.
 function parse_query(raw) {
   const query = raw.trim().toLowerCase()
@@ -50,7 +64,8 @@ function parse_query(raw) {
     }
   }
 
-  return {term: canonicalize_term(query), type: null, exact: false}
+  const term = canonicalize_term(query)
+  return {term, type: null, exact: false, related: RELATED.get(term)}
 }
 
 function canonicalize_term(term) {
@@ -79,6 +94,9 @@ function match_entry(entry, parsed) {
     if (matchesQuery(tag['name'], tag['type'], parsed)) {
       matched = true
       weight += tag['weight']
+    } else if (parsed.related?.has(tag['name'])) {
+      matched = true
+      weight += tag['weight'] * RELATED_WEIGHT
     }
   }
 
