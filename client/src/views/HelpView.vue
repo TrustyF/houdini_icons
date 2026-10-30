@@ -1,3 +1,28 @@
+<script setup>
+import {onMounted} from "vue";
+import Icon_image from "@/components/icon/Icon_image.vue";
+
+// Houdini icons beside each question, by id (= atlas cell, never reused)
+const ICONS = {
+  use: 5001,         // BUTTONS/paste
+  missing: 1600,     // MISC/faq
+  search: 1938,      // PANETYPES/dashbox
+  no_results: 1040,  // DIALOG/warning
+  location: 552,     // COMMON/archive
+}
+
+// Smooth jump to a question, without the router treating the hash as a navigation
+function scroll_to(id) {
+  document.getElementById(id)?.scrollIntoView({behavior: 'smooth'})
+  history.replaceState(history.state, '', `#${id}`)
+}
+
+// A shared link like /help#search opens on that question
+onMounted(() => {
+  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView()
+})
+</script>
+
 <template>
   <div class="help_wrapper">
 
@@ -5,9 +30,23 @@
       <h1>FAQ</h1>
     </header>
 
+    <nav class="toc">
+      <ul>
+        <li><a href="#missing" @click.prevent="scroll_to('missing')">
+          <icon_image :icon_id="ICONS.missing" :scale_override="0.22"/>I can't find an icon, or it's missing in my Houdini</a></li>
+        <li><a href="#search" @click.prevent="scroll_to('search')">
+          <icon_image :icon_id="ICONS.search" :scale_override="0.22"/>What can I search for?</a></li>
+        <li><a href="#no-results" @click.prevent="scroll_to('no-results')">
+          <icon_image :icon_id="ICONS.no_results" :scale_override="0.22"/>My search returns nothing, or odd results</a></li>
+        <li><a href="#location" @click.prevent="scroll_to('location')">
+          <icon_image :icon_id="ICONS.location" :scale_override="0.22"/>Where are the icons located?</a></li>
+      </ul>
+    </nav>
+
     <section>
-      <div class="faq_item">
-        <h2>How do I use the icons?</h2>
+      <div class="faq_item" id="use">
+        <h2>
+          <icon_image :icon_id="ICONS.use" :scale_override="0.36"/>How do I use the icons?</h2>
         <div class="faq_body">
           <p>Click an icon to expand it, then click its name to copy it. Paste it into the <strong>Icon</strong> field
             of your HDA's Type Properties.</p>
@@ -16,8 +55,9 @@
         </div>
       </div>
 
-      <div class="faq_item">
-        <h2>I can't find an icon, or it's missing in my Houdini</h2>
+      <div class="faq_item" id="missing">
+        <h2>
+          <icon_image :icon_id="ICONS.missing" :scale_override="0.36"/>I can't find an icon, or it's missing in my Houdini</h2>
         <div class="faq_body">
           <p>Not every icon exists in every version of Houdini. SideFX adds, removes and redraws icons between
             releases, so an icon you find here may be missing or look different in the version you use.</p>
@@ -40,11 +80,39 @@
         </div>
       </div>
 
-      <div class="faq_item">
-        <h2>My search returns nothing, or odd results</h2>
+      <div class="faq_item" id="search">
+        <h2>
+          <icon_image :icon_id="ICONS.search" :scale_override="0.36"/>What can I search for?</h2>
         <div class="faq_body">
-          <p>Try a single, simple word, and drop any <code>#tag</code> / <code>#color</code> / <code>#shape</code>
-            prefix, since those only match exactly. If that still finds nothing, set the <strong>Houdini</strong>
+          <p>Start a search with one of these prefixes to match one thing exactly:</p>
+          <dl class="prefix_list">
+            <dt><code>#tag arrow</code></dt>
+            <dd>Icons with exactly that tag: what the icon shows or its style.</dd>
+            <dt><code>#shape circle</code></dt>
+            <dd>Icons built from that basic shape (circle, square, triangle, line, curve, ...).</dd>
+            <dt><code>#color red</code></dt>
+            <dd>Icons in that color: red, orange, yellow, green, blue, purple, pink, brown, black, white, gray or
+              cyan.</dd>
+            <dt><code>#strict arrow</code></dt>
+            <dd>Icons whose name, category, tag, shape or color is exactly that word.</dd>
+            <dt><code>#category sop</code></dt>
+            <dd>Every icon of a category (<code>sop</code>, <code>cop</code>, <code>buttons</code>, ...).
+              <code>cop</code> doesn't include COP2.</dd>
+            <dt><code>#new 21</code></dt>
+            <dd>Every icon added or redrawn in that Houdini version (<code>22</code> covers both of its UI skins). It
+              ignores the <strong>Houdini</strong> dropdown, so it can show icons your version doesn't have: check
+              the label at the bottom of each card.</dd>
+          </dl>
+          <p class="hint">Click an icon to expand it, then click any of its tags, its category or a version in its
+            label to run that search.</p>
+        </div>
+      </div>
+
+      <div class="faq_item" id="no-results">
+        <h2>
+          <icon_image :icon_id="ICONS.no_results" :scale_override="0.36"/>My search returns nothing, or odd results</h2>
+        <div class="faq_body">
+          <p>Try a single, simple word, and drop any <code>#</code> prefix, since those only match exactly. If that still finds nothing, set the <strong>Houdini</strong>
             dropdown to <strong>All</strong>: the icon may not exist in the version you picked.</p>
           <p>Most tags are generated automatically, so some will be missing or a bit off. If you spot a wrong tag or
             a search that should have found something, please
@@ -53,8 +121,9 @@
         </div>
       </div>
 
-      <div class="faq_item">
-        <h2>Where are the icons located?</h2>
+      <div class="faq_item" id="location">
+        <h2>
+          <icon_image :icon_id="ICONS.location" :scale_override="0.36"/>Where are the icons located?</h2>
         <div class="faq_body">
           <p>Houdini keeps its icons in a single <code>icons.zip</code>, inside <code>houdini/config/Icons</code> of
             the install folder (<code>$HFS</code>). With a default install, that's:</p>
@@ -192,12 +261,72 @@ code {
   user-select: all;
 }
 
+/* Search prefixes: the prefix, then what it matches */
+.prefix_list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 10px 16px;
+  margin: 4px 0 18px 0;
+}
+
+.prefix_list dd {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .prefix_list {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .prefix_list dd {
+    margin-bottom: 8px;
+  }
+}
+
+/* Every question at a glance, linking down to its answer */
+.toc ul {
+  display: flex;
+  flex-flow: column;
+  gap: 6px;
+  padding: 16px 20px;
+  list-style: none;
+  border-radius: 8px;
+  background-color: #151515;
+  border: 1px solid #333333;
+}
+
+.toc a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6a93b8;
+  text-decoration: none;
+}
+
+.toc a:hover {
+  text-decoration: underline;
+}
+
+.faq_item {
+  scroll-margin-top: 20px;
+}
+
+/* Long questions wrap on phones; the icon keeps its size */
+.toc a > .icon_img,
+.faq_item h2 > .icon_img {
+  flex-shrink: 0;
+}
+
 /* FAQ: every question listed open, split by a hairline */
 .faq_item + .faq_item {
   border-top: 1px solid #2a2a2a;
 }
 
 .faq_item h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 32px 0 14px 0;
   color: white;
   font-size: 1.2em;

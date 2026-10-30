@@ -1,5 +1,5 @@
 <script setup>
-import {icon_data, icon_data_ready, icon_data_promise} from "@/scripts/database.js";
+import {all_icons, icon_data, icon_data_ready, icon_data_promise, new_in} from "@/scripts/database.js";
 import {inject, onMounted, onUnmounted, ref, watch, shallowRef, computed} from "vue";
 import Icon_container from "@/components/icon/Icon_container.vue";
 import tag_synonyms from "@/assets/tag_synonyms.json";
@@ -30,6 +30,9 @@ const STRICT_PREFIXES = [
   {prefix: '#color ', type: 'color'},
   {prefix: '#tag ', type: 'tag'},
   {prefix: '#shape ', type: 'shape'},
+  {prefix: '#category ', type: 'category'},
+  // Icons added or redrawn in a release, e.g. "#new 21"
+  {prefix: '#new ', type: 'new'},
 ]
 
 // The tagging pipeline stores spelling variants under one name (e.g. "grey"
@@ -60,7 +63,8 @@ function parse_query(raw) {
   for (const {prefix, type} of STRICT_PREFIXES) {
     if (query.startsWith(prefix)) {
       const term = query.slice(prefix.length)
-      return {term: canonicalize_term(term), type, exact: true}
+      // Categories and versions are Houdini's own names, not tags, so synonyms don't apply
+      return {term: type === 'category' || type === 'new' ? term : canonicalize_term(term), type, exact: true}
     }
   }
 
@@ -76,16 +80,34 @@ function canonicalize_term(term) {
 function matchesQuery(value, type, parsed) {
   if (typeof value !== "string") return false
   if (parsed.exact) return value === parsed.term && (parsed.type === null || type === parsed.type)
-  return value.includes(parsed.term)
+  return starts_word(value, parsed.term)
+}
+
+// Whether `term` occurs at the start of a word in `value`: "prop" finds
+// "properties", but "rope" doesn't. Names are also matched through their
+// `words` (split by index_images.py), since "layerproperties" has no separators.
+function starts_word(value, term) {
+  for (let i = value.indexOf(term); i !== -1; i = value.indexOf(term, i + 1)) {
+    if (i === 0 || !/[a-z0-9]/.test(value[i - 1])) return true
+  }
+  return false
 }
 
 // Single pass per entry: matching and weighting happen together so sorting
 // afterwards only compares pre-computed numbers instead of recomputing them.
 function match_entry(entry, parsed) {
-  let matched = matchesQuery(entry['name'], null, parsed)
+  if (parsed.type === 'new') {
+    const matched = new_in(entry['versions']).has(parsed.term)
+    return {matched, weight: matched ? 1 : 0}
+  }
+
+  // The raw name too, so typing a node name whole ("attribwrangle") still finds it
+  let matched = parsed.exact ? matchesQuery(entry['name'], null, parsed)
+      : matchesQuery(entry['words'], null, parsed) || matchesQuery(entry['name'].toLowerCase(), null, parsed)
   let weight = matched ? 1 : 0
 
-  if (matchesQuery(entry['category'], null, parsed)) {
+  // Categories are uppercase ("SOP"); exact searches compare them lowercased
+  if (matchesQuery(parsed.exact ? entry['category'].toLowerCase() : entry['category'], 'category', parsed)) {
     matched = true
     weight += 1
   }
@@ -109,7 +131,10 @@ function run_search(raw) {
   const parsed = parse_query(raw)
   const results = []
 
-  for (const entry of icon_data.value) {
+  // "#new 21" names its own version, so it searches every drawing rather
+  // than the dropdown's set (which could hide them, or all of them)
+  const source = parsed.type === 'new' ? all_icons.value : icon_data.value
+  for (const entry of source) {
     const {matched, weight} = match_entry(entry, parsed)
     if (matched) results.push({entry, weight})
   }

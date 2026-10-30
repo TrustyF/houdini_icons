@@ -21,7 +21,7 @@ function stored_version() {
 
 // One entry per drawing: an icon redrawn between Houdini versions appears
 // once per drawing, each listing the versions (`versions`) that use it.
-const all_icons = shallowRef([]);
+export const all_icons = shallowRef([]);
 
 export const selected_version = ref(stored_version() ?? versions.at(-1).key);
 
@@ -42,6 +42,33 @@ const version_label = (key) => versions.find((v) => v.key === key).label.replace
 // the newest version still has it, otherwise "19.5 – 20.5 only" (removed or
 // redrawn since).
 export function version_span(keys) {
+  return version_span_parts(keys).map(({text}) => text).join(', ');
+}
+
+// version_span's runs, each with the release it starts in (`release`, what
+// a `#new` search for that run takes)
+export function version_span_parts(keys) {
+  const latest = versions.at(-1).key;
+  return version_runs(keys).map((run) => {
+    const [first, last] = [run[0], run.at(-1)];
+    const release = release_of(first);
+    // A run reaching the newest version from that release's legacy-UI set
+    // means "new in that release", in both UIs: name the release, not the skin
+    if (last === latest) return {text: `${version_label(release)}+`, release};
+    const text = first === last ? `${version_label(first)} only` : `${version_label(first)} – ${version_label(last)} only`;
+    return {text, release};
+  });
+}
+
+// The releases a drawing appears in without being in the version before:
+// added or redrawn there (a legacy-UI set counts as its release)
+export function new_in(keys) {
+  return new Set(version_runs(keys).map((run) => release_of(run[0])));
+}
+
+const release_of = (key) => key.replace(/-legacy$/, '');
+
+function version_runs(keys) {
   const order = versions.map((v) => v.key);
   const used = new Set(keys);
   const runs = [];
@@ -50,15 +77,7 @@ export function version_span(keys) {
     if (runs.length && used.has(order[i - 1])) runs.at(-1).push(key);
     else runs.push([key]);
   });
-
-  const latest = order.at(-1);
-  return runs.map((run) => {
-    const [first, last] = [run[0], run.at(-1)];
-    // A run reaching the newest version from that release's legacy-UI set
-    // means "new in that release", in both UIs: name the release, not the skin
-    if (last === latest) return `${version_label(first.replace(/-legacy$/, ''))}+`;
-    return first === last ? `${version_label(first)} only` : `${version_label(first)} – ${version_label(last)} only`;
-  }).join(', ');
+  return runs;
 }
 
 // The name Houdini knows the icon by, e.g. BUTTONS_folder (matches its icon
@@ -114,6 +133,9 @@ function validate_icon_entries(items, source) {
     }
     if (typeof entry.name !== 'string') {
       throw new Error(`Invalid icon database entry at ${where}: 'name' must be a string, got ${JSON.stringify(entry.name)}`);
+    }
+    if (typeof entry.words !== 'string') {
+      throw new Error(`Invalid icon database entry at ${where}: 'words' must be a string, got ${JSON.stringify(entry.words)}`);
     }
     if (typeof entry.category !== 'string') {
       throw new Error(`Invalid icon database entry at ${where}: 'category' must be a string, got ${JSON.stringify(entry.category)}`);

@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import json
 import time
 import shutil
@@ -12,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import anthropic
 import numpy as np
+import wordsegment
 from dotenv import load_dotenv
 from PIL import Image
 from db_loader import session
@@ -430,9 +432,18 @@ def tag_icons(from_scratch=False, limit=None):
     apply_manual_tags()
 
 
+def name_words(name):
+    """An icon name split into English words ("layerproperties" -> "layer properties"),
+    so the client's search can match at word starts without "rope" finding "properties"."""
+    if not wordsegment.WORDS:
+        wordsegment.load()
+    spaced = re.sub(r'([a-z])([A-Z])', r'\1 \2', name).lower()
+    return ' '.join(w for part in re.split(r'[^a-z0-9]+', spaced) if part for w in wordsegment.segment(part))
+
+
 def dump_json():
     print('dumping json')
-    all_icons = [x.to_dict() for x in session.query(Icon).order_by(Icon.id).all()]
+    all_icons = [{**x.to_dict(), "words": name_words(x.name)} for x in session.query(Icon).order_by(Icon.id).all()]
 
     with open(f'{CLIENT_DIR}/src/assets/database.json', 'w') as outfile:
         json.dump(all_icons, outfile)

@@ -3,7 +3,7 @@ import {computed, inject} from "vue";
 import Tag_list from "@/components/icon/tag_list.vue";
 import Icon_image from "@/components/icon/Icon_image.vue";
 import Icon_node_preview from "@/components/icon/Icon_node_preview.vue";
-import {version_span, version_list, icon_houdini_name} from "@/scripts/database.js";
+import {version_span_parts, version_list, icon_houdini_name} from "@/scripts/database.js";
 
 let props = defineProps({
   position: Object,
@@ -14,6 +14,12 @@ let props = defineProps({
 let emits = defineEmits(['close'])
 
 let alert_content = inject('alert_content')
+const search = inject('search')
+
+// Like clicking a tag: shows every icon of this category
+function search_category() {
+  search.value = `#category ${props.data.category.toLowerCase()}`
+}
 
 const houdini_name = computed(() => icon_houdini_name(props.data))
 
@@ -47,7 +53,12 @@ function download_svg(data) {
   document.body.removeChild(a);
 }
 
-const version_note = computed(() => `Available in Houdini ${version_span(props.data.versions)}`)
+const version_parts = computed(() => version_span_parts(props.data.versions))
+
+// Every icon added or redrawn in the release this span starts in
+function search_new(release) {
+  search.value = `#new ${release}`
+}
 const version_title = computed(() => version_list(props.data.versions))
 
 function close(e) {
@@ -115,7 +126,8 @@ const position_style = computed(() => {
          :title="data['name']"> {{ data['name'].replaceAll("_", ' ') }}
     </div>
 
-    <div class="icon_category">{{ data['category'] }}</div>
+    <div class="icon_category" :title="`Show all ${data['category']} icons`"
+         @click="search_category">{{ data['category'] }}</div>
 
     <div class="icon_path_box" @click="add_to_clipboard">
       <div class="bi-copy"/>
@@ -135,7 +147,11 @@ const position_style = computed(() => {
       <icon_node_preview class="node_prev" :icon_id="props.data.id" :bg_color="2"/>
     </div>
 
-    <div class="version_note" :title="version_title">{{ version_note }}</div>
+    <div class="version_note" :title="version_title">Available in Houdini
+      <template v-for="(part, i) in version_parts" :key="part.text">{{ i ? ', ' : '' }}<span
+          class="version_link" :title="`Show icons new in Houdini ${part.release}`"
+          @click="search_new(part.release)">{{ part.text }}</span></template>
+    </div>
 
   </div>
 </template>
@@ -223,6 +239,17 @@ const position_style = computed(() => {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+
+  z-index: 5;
+  cursor: pointer;
+  padding: 3px 6px;
+  margin-left: -6px;
+  border-radius: 5px;
+}
+
+.icon_category:hover {
+  background-color: #2a4766;
+  color: #d9d9d9;
 }
 
 .icon_path_box {
@@ -274,6 +301,17 @@ const position_style = computed(() => {
   color: #808080;
   font-size: 0.75em;
   line-height: 1.2;
+}
+
+.version_link {
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
+.version_link:hover {
+  background-color: #2a4766;
+  color: #d9d9d9;
 }
 
 </style>
