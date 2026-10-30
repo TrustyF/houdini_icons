@@ -13,10 +13,8 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
-    "@bundled-es-modules/axios": "^0.27.2",
     "bootstrap-icons": "^1.11.3",
     "firebase": "^11.1.0",
-    "rrweb": "^2.0.0-alpha.4",
     "v-lazy-component": "^3.0.9",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5"
