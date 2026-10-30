@@ -4,7 +4,7 @@ import Icon_image from "@/components/icon/Icon_image.vue";
 
 // Houdini icons beside each question, by id (= atlas cell, never reused)
 const ICONS = {
-  use: 5001,         // BUTTONS/paste
+  use: 1746,         // NETVIEW/message_badge
   missing: 1600,     // MISC/faq
   search: 1938,      // PANETYPES/dashbox
   no_results: 1040,  // DIALOG/warning
